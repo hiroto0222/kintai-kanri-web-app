@@ -1,0 +1,3 @@
+# run server
+server:
+	air
