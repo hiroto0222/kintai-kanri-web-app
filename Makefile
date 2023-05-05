@@ -27,3 +27,11 @@ migrate-down-1:
 # run sqlc generate
 sqlc-generate:
 	docker-compose exec backend sqlc generate
+
+# run tests
+test:
+	docker-compose exec backend go test -v -cover ./... -coverprofile=cover.out
+
+# check test coverage
+see-coverage:
+	cd backend && go tool cover -html=cover.out -o cover.html && open cover.html
