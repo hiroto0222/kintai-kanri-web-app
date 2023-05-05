@@ -12,6 +12,7 @@ jobs:
   test_go:
     name: Test Backend
     runs-on: ubuntu-latest
+    environment: local
     defaults:
       run:
         working-directory: ./backend
@@ -43,7 +44,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Create .env file
-        run: echo "${{ vars.ENV_FILE }}" > .local.env && cat .local.env
+        run: echo ${{ vars.ENV_FILE }} > .local.env && cat .local.env
 
       - name: Install golang-migrate
         run: |
