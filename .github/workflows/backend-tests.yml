@@ -1,0 +1,69 @@
+name: Run Backend Tests
+
+on:
+  push:
+    branches: [main]
+    paths: ["backend/**", ".github/workflows/backend-tests.yml"]
+  pull_request:
+    branches: [main]
+    paths: ["backend/**", ".github/workflows/backend-tests.yml"]
+
+jobs:
+  test_go:
+    name: Test Backend
+    runs-on: ubuntu-latest
+    environment: local
+    defaults:
+      run:
+        working-directory: ./backend
+
+    services:
+      postgres:
+        image: postgres:13
+        env:
+          POSTGRES_USER: admin
+          POSTGRES_PASSWORD: password123
+          POSTGRES_DB: kintai-kanri-db
+        ports:
+          - 5432:5432
+        # PostgreSQLデータベースが実行されているかどうかを確認するため
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Set up Go 1.20
+        uses: actions/setup-go@v2
+        with:
+          go-version: ^1.20
+        id: go
+
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v2
+
+      - name: Create .env file
+        run: |
+          touch .local.env
+          echo PORT=${{ vars.PORT }} >> .local.env
+          echo POSTGRES_DRIVER=${{ vars.POSTGRES_DRIVER }} >> .local.env
+          echo POSTGRES_SOURCE=${{ vars.POSTGRES_SOURCE }} >> .local.env
+          echo POSTGRES_HOST=${{ vars.POSTGRES_HOST }} >> .local.env
+          echo POSTGRES_PORT=${{ vars.POSTGRES_PORT }} >> .local.env
+          echo POSTGRES_USER=${{ vars.POSTGRES_USER }} >> .local.env
+          echo POSTGRES_PASSWORD=${{ vars.POSTGRES_PASSWORD }} >> .local.env
+          echo POSTGRES_DB=${{ vars.POSTGRES_DB }} >> .local.env
+          echo ORIGIN=${{ vars.ORIGIN }} >> .local.env
+          cat .local.env
+
+      - name: Install golang-migrate
+        run: |
+          curl -L https://github.com/golang-migrate/migrate/releases/download/v4.14.1/migrate.linux-amd64.tar.gz | tar xvz
+          sudo mv migrate.linux-amd64 /usr/bin/migrate
+
+      - name: Run migrations
+        run: migrate -path db/migrations -database "postgresql://admin:password123@localhost:5432/kintai-kanri-db?sslmode=disable" -verbose up
+
+      - name: Test
+        run: go test -v -cover ./...
