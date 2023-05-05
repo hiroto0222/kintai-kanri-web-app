@@ -6,7 +6,7 @@ CREATE TABLE "Employees" (
   "phone" varchar(20) NOT NULL,
   "address" varchar(255) NOT NULL,
   "hashed_password" varchar NOT NULL,
-  "role" int NOT NULL,
+  "role_id" int NOT NULL,
   "is_admin" bool NOT NULL DEFAULT false,
   "created_at" timestamptz NOT NULL DEFAULT (now())
 );
@@ -42,7 +42,7 @@ CREATE INDEX ON "ClockIns" ("employee_id");
 
 CREATE INDEX ON "ClockOuts" ("employee_id");
 
-ALTER TABLE "Employees" ADD FOREIGN KEY ("role") REFERENCES "Roles" ("id");
+ALTER TABLE "Employees" ADD FOREIGN KEY ("role_id") REFERENCES "Roles" ("id");
 
 ALTER TABLE "Shifts" ADD FOREIGN KEY ("employee_id") REFERENCES "Employees" ("id");
 
