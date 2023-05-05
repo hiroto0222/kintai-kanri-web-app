@@ -13,7 +13,7 @@ CREATE TABLE "Employees" (
 
 CREATE TABLE "Roles" (
   "id" serial PRIMARY KEY,
-  "name" varchar(50)
+  "name" varchar(50) NOT NULL
 );
 
 CREATE TABLE "Shifts" (
