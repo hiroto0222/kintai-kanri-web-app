@@ -1,15 +1,20 @@
-name: Run Tests
+name: Run Backend Tests
 
 on:
   push:
     branches: [main]
+    paths: ["backend/**", ".github/workflows/backend-tests.yml"]
   pull_request:
     branches: [main]
+    paths: ["backend/**", ".github/workflows/backend-tests.yml"]
 
 jobs:
-  test:
-    name: Test
+  test_go:
+    name: Test Backend
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./backend
 
     services:
       postgres:
