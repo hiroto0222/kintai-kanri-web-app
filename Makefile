@@ -23,3 +23,7 @@ migrate-up-1:
 # run db migrate-down 1
 migrate-down-1:
 	docker-compose exec backend migrate -path db/migrations -database "$(DB_URL)" -verbose down 1
+
+# run sqlc generate
+sqlc-generate:
+	docker-compose exec backend sqlc generate
