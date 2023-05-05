@@ -8,7 +8,7 @@ services:
     volumes:
       - progresDB:/var/lib/postgresql/data
     env_file:
-      - ./local.env
+      - ./.local.env
 
 volumes:
   progresDB:
