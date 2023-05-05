@@ -10,9 +10,13 @@ RUN apk upgrade --update && \
 
 RUN go mod download
 
-# install air, sqlc
-RUN go install github.com/cosmtrek/air@latest && \
-  go install github.com/kyleconroy/sqlc/cmd/sqlc@latest
+# install air
+RUN go install github.com/cosmtrek/air@latest
+
+# install sqc (error with go get: the PostgreSQL engine requires cgo. Please set CGO_ENABLED=1)
+RUN curl -L https://github.com/kyleconroy/sqlc/releases/download/v1.18.0/sqlc_1.18.0_linux_amd64.tar.gz | tar xvz && \
+  mv /app/sqlc /usr/bin/sqlc && \
+  which sqlc
 
 # install golang-migrate
 RUN curl -L https://github.com/golang-migrate/migrate/releases/download/v4.14.1/migrate.linux-amd64.tar.gz | tar xvz && \
