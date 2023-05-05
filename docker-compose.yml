@@ -1,24 +1,27 @@
 version: '3'
 services:
   backend:
+    container_name: backend
     build:
       context: ./backend
       dockerfile: Dockerfile
     ports:
-      - '8080:8080'
+      - 8080:8080
     volumes:
       - ./backend/:/app
     tty: true
+    depends_on:
+      - db
 
-  postgres:
+  db:
     image: postgres:13
-    container_name: kintai-kanri-postgres
+    container_name: postgres
     ports:
-      - '5432:5432'
+      - 5432:5432
     volumes:
-      - progresDB:/var/lib/postgresql/data
+      - postgresDB:/var/lib/postgresql/data
     env_file:
       - ./backend/.local.env
 
 volumes:
-  progresDB:
+  postgresDB:
