@@ -10,7 +10,8 @@ RUN apk upgrade --update && \
 RUN go mod download
 
 # install air
-RUN go install github.com/cosmtrek/air@latest
+RUN go install github.com/cosmtrek/air@latest && \
+  go install github.com/kyleconroy/sqlc/cmd/sqlc@latest
 
 EXPOSE 8080
 CMD [ "air", "-c", ".air.toml" ]
