@@ -6,6 +6,6 @@ packages:
     schema: "./db/migrations"
     engine: "postgresql"
     emit_prepared_queries: false
-    emit_interface: false
+    emit_interface: true # mock で使う
     emit_exact_table_names: false
     emit_json_tags: true
