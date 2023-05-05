@@ -1,15 +1,27 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/hiroto0222/kintai-kanri-web-app/config"
 )
 
-func main() {
-	server := gin.Default()
+var server *gin.Engine
 
+func init() {
+	config, err := config.LoadConfig(".")
+	if err != nil {
+		log.Fatalf("could not load config, %v", err)
+	}
+	fmt.Println(config)
+
+	server = gin.Default()
+}
+
+func main() {
 	router := server.Group("/api")
 
 	router.GET("/healthchecker", func(ctx *gin.Context) {
