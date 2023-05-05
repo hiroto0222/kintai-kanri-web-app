@@ -20,6 +20,7 @@ func TestCreateEmployee(t *testing.T) {
 	})
 }
 
+// succeeds in getting an employee by ID
 func TestGetEmployeeByID(t *testing.T) {
 	role := CreateTestRole(t)
 	employee1 := CreateTestEmployee(t, CreateEmployeeParams{
