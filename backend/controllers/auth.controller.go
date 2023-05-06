@@ -3,7 +3,6 @@ package controllers
 import (
 	"database/sql"
 	"net/http"
-	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -30,6 +29,18 @@ type signUpEmployeeRequest struct {
 	Password  string `json:"password" binding:"required,min=6"`
 }
 
+type signUpEmployeeResponse struct {
+	ID        int32     `json:"id"`
+	FirstName string    `json:"first_name"`
+	LastName  string    `json:"last_name"`
+	Email     string    `json:"email"`
+	Phone     string    `json:"phone"`
+	Address   string    `json:"address"`
+	RoleID    int32     `json:"role_id"`
+	IsAdmin   bool      `json:"is_admin"`
+	CreatedAt time.Time `json:"created_at"`
+}
+
 // SignUpEmployee: api/auth/register ユーザー登録
 func (ac *AuthController) SignUpEmployee(ctx *gin.Context) {
 	var req signUpEmployeeRequest
@@ -43,6 +54,7 @@ func (ac *AuthController) SignUpEmployee(ctx *gin.Context) {
 	hashedPassword, err := utils.HashPassword(req.Password)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, err.Error())
+		return
 	}
 
 	args := db.CreateEmployeeParams{
@@ -58,12 +70,12 @@ func (ac *AuthController) SignUpEmployee(ctx *gin.Context) {
 
 	employee, err := ac.store.CreateEmployee(ctx, args)
 	if err != nil {
-		ctx.JSON(http.StatusBadGateway, err.Error())
+		ctx.JSON(http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	employeeResponse := newEmployeeResponse(employee)
-	ctx.JSON(http.StatusCreated, gin.H{"status": "success", "data": gin.H{"user": employeeResponse}})
+	response := newEmployeeResponse(employee)
+	ctx.JSON(http.StatusCreated, response)
 }
 
 type signInEmployee struct {
@@ -101,28 +113,20 @@ func (ac *AuthController) SignInEmployee(ctx *gin.Context) {
 
 	// TODO: Access token
 
-	employeeResponse := newEmployeeResponse(employee)
-	ctx.JSON(http.StatusOK, gin.H{"status": "success", "data": gin.H{"user": employeeResponse}})
+	response := newEmployeeResponse(employee)
+	ctx.JSON(http.StatusOK, response)
 }
 
-type employeeResponse struct {
-	ID        string    `json:"id,omitempty"`
-	FirstName string    `json:"first_name,omitempty"`
-	LastName  string    `json:"last_name,omitempty"`
-	Email     string    `json:"email,omitempty"`
-	Phone     string    `json:"phone,omitempty"`
-	RoleID    string    `json:"role_id,omitempty"`
-	CreatedAt time.Time `json:"created_at"`
-}
-
-func newEmployeeResponse(employee db.Employee) employeeResponse {
-	return employeeResponse{
-		ID:        strconv.FormatInt(int64(employee.ID), 10),
+func newEmployeeResponse(employee db.Employee) signUpEmployeeResponse {
+	return signUpEmployeeResponse{
+		ID:        employee.ID,
 		FirstName: employee.FirstName,
 		LastName:  employee.LastName,
 		Email:     employee.Email,
 		Phone:     employee.Phone,
-		RoleID:    strconv.FormatInt(int64(employee.RoleID), 10),
+		Address:   employee.Address,
+		RoleID:    employee.RoleID,
+		IsAdmin:   employee.IsAdmin,
 		CreatedAt: employee.CreatedAt,
 	}
 }
