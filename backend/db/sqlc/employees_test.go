@@ -2,6 +2,7 @@ package db
 
 import (
 	"context"
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -45,8 +46,8 @@ func TestListEmployees(t *testing.T) {
 		CreateTestEmployee(t, CreateEmployeeParams{
 			FirstName: "浩士",
 			LastName:  "青山",
-			Email:     "test@email.com",
-			Phone:     "090-1234-5678",
+			Email:     fmt.Sprintf("test{%v}@email.com", i),
+			Phone:     fmt.Sprintf("090-1234-567{%v}", i),
 			Address:   "東京都千代田区",
 			RoleID:    role.ID,
 		})
