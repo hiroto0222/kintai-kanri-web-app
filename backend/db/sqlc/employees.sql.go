@@ -73,6 +73,29 @@ func (q *Queries) DeleteEmployee(ctx context.Context, id int32) error {
 	return err
 }
 
+const getEmployeeByEmail = `-- name: GetEmployeeByEmail :one
+SELECT id, first_name, last_name, email, phone, address, hashed_password, role_id, is_admin, created_at FROM "Employees"
+WHERE email = $1 LIMIT 1
+`
+
+func (q *Queries) GetEmployeeByEmail(ctx context.Context, email string) (Employee, error) {
+	row := q.db.QueryRowContext(ctx, getEmployeeByEmail, email)
+	var i Employee
+	err := row.Scan(
+		&i.ID,
+		&i.FirstName,
+		&i.LastName,
+		&i.Email,
+		&i.Phone,
+		&i.Address,
+		&i.HashedPassword,
+		&i.RoleID,
+		&i.IsAdmin,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
 const getEmployeeById = `-- name: GetEmployeeById :one
 SELECT id, first_name, last_name, email, phone, address, hashed_password, role_id, is_admin, created_at FROM "Employees"
 WHERE id = $1 LIMIT 1

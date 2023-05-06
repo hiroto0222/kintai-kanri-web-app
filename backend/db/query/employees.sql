@@ -17,6 +17,10 @@ RETURNING *;
 SELECT * FROM "Employees"
 WHERE id = $1 LIMIT 1;
 
+-- name: GetEmployeeByEmail :one
+SELECT * FROM "Employees"
+WHERE email = $1 LIMIT 1;
+
 -- name: ListEmployees :many
 SELECT * FROM "Employees"
 ORDER BY id
