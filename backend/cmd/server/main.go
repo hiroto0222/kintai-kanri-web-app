@@ -39,7 +39,7 @@ func main() {
 	AuthController = *controllers.NewAuthController(store)
 
 	// start server
-	server := newServer(config, store)
+	server := NewServer(config, store)
 	log.Fatal(server.start())
 }
 
@@ -51,8 +51,8 @@ type Server struct {
 	router *gin.Engine // 各APIリクエストを正しいハンドラに送信して処理する
 }
 
-// newServer creates a new HTTP server
-func newServer(config config.Config, store db.Store) *Server {
+// NewServer creates a new HTTP server
+func NewServer(config config.Config, store db.Store) *Server {
 	server := &Server{
 		config: config,
 		store:  store,
