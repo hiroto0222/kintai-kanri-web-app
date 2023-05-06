@@ -35,3 +35,7 @@ test:
 # check test coverage
 see-coverage:
 	cd backend && go tool cover -html=cover.out -o cover.html && open cover.html
+
+# generate mock store
+mock-store:
+	cd backend && mockgen --package mockdb --destination db/mock/store.go github.com/hiroto0222/kintai-kanri-web-app/db/sqlc Store
