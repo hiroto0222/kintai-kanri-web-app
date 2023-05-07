@@ -37,7 +37,6 @@ func (maker *JWTMaker) CreateToken(email string, duration time.Duration) (string
 
 // VerifyToken は JWT トークンの署名を検証し、そのトークンが有効であるかどうかを確認する
 func (maker *JWTMaker) VerifyToken(token string) (*Payload, error) {
-	//
 	keyFunc := func(token *jwt.Token) (interface{}, error) {
 		// SigningMethodHS256を使用しているため
 		_, ok := token.Method.(*jwt.SigningMethodHMAC)
