@@ -2,6 +2,7 @@ package controllers_test
 
 import (
 	"bytes"
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -47,7 +48,7 @@ func EqCreateEmployeeParams(arg db.CreateEmployeeParams, password string) gomock
 	return eqCreateEmployeeParamsMatcher{arg, password}
 }
 
-func TestSignUpEmployeeAPI(t *testing.T) {
+func TestRegisterEmployeeAPI(t *testing.T) {
 	role := createTestRole()
 	employee, password := createTestEmployee(t, role)
 
@@ -141,6 +142,97 @@ func TestSignUpEmployeeAPI(t *testing.T) {
 
 			// テスト対象のURLとリクエストボディを定義
 			url := "/api/auth/register"
+			data, err := json.Marshal(tc.body)
+			require.NoError(t, err)
+
+			// テストリクエストを作成
+			request, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(data))
+			require.NoError(t, err)
+
+			server.Router.ServeHTTP(recorder, request)
+			tc.checkResponse(recorder)
+		})
+	}
+}
+
+func TestLogInEmployee(t *testing.T) {
+	role := createTestRole()
+	employee, password := createTestEmployee(t, role)
+
+	testCases := []struct {
+		name          string
+		body          gin.H
+		buildStubs    func(store *mockdb.MockStore)
+		checkResponse func(recorder *httptest.ResponseRecorder)
+	}{
+		{
+			name: "OK",
+			body: gin.H{
+				"email":    employee.Email,
+				"password": password,
+			},
+			buildStubs: func(store *mockdb.MockStore) {
+				store.EXPECT().
+					GetEmployeeByEmail(gomock.Any(), gomock.Eq(employee.Email)).
+					Times(1).
+					Return(employee, nil)
+			},
+			checkResponse: func(recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusOK, recorder.Code)
+			},
+		},
+		{
+			name: "EmployeeNotFound",
+			body: gin.H{
+				"email":    "notfound@email.com",
+				"password": password,
+			},
+			buildStubs: func(store *mockdb.MockStore) {
+				store.EXPECT().
+					GetEmployeeByEmail(gomock.Any(), gomock.Any()).
+					Times(1).
+					Return(db.Employee{}, sql.ErrNoRows)
+			},
+			checkResponse: func(recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusNotFound, recorder.Code)
+			},
+		},
+		{
+			name: "WrongPassword",
+			body: gin.H{
+				"email":    employee.Email,
+				"password": "wrongpassword",
+			},
+			buildStubs: func(store *mockdb.MockStore) {
+				store.EXPECT().
+					GetEmployeeByEmail(gomock.Any(), gomock.Eq(employee.Email)).
+					Times(1).
+					Return(employee, nil)
+			},
+			checkResponse: func(recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusUnauthorized, recorder.Code)
+			},
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			// mockのコントローラを作成
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			// 実際DBに接続せず db.Store インターフェイスのmockを作成
+			store := mockdb.NewMockStore(ctrl)
+
+			// 作成したmockに対して期待する呼び出し関数とその引数、返り値を定義
+			tc.buildStubs(store)
+
+			// テストサーバを起動
+			server := newTestServer(t, store)
+			recorder := httptest.NewRecorder()
+
+			// テスト対象のURLとリクエストボディを定義
+			url := "/api/auth/login"
 			data, err := json.Marshal(tc.body)
 			require.NoError(t, err)
 
