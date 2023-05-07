@@ -15,6 +15,6 @@ func NewAuthRoutes(authController controllers.AuthController) AuthRoutes {
 
 func (rc *AuthRoutes) AuthRoute(rg *gin.RouterGroup) {
 	router := rg.Group("/auth")
-	router.POST("/register", rc.authController.SignUpEmployee)
-	router.POST("/login", rc.authController.SignInEmployee)
+	router.POST("/register", rc.authController.RegisterEmployee)
+	router.POST("/login", rc.authController.LogInEmployee)
 }

@@ -23,7 +23,7 @@ func NewAuthController(config config.Config, store db.Store, tokenMaker token.Ma
 	return &AuthController{config, tokenMaker, store}
 }
 
-type signUpEmployeeRequest struct {
+type registerEmployeeRequest struct {
 	FirstName string `json:"first_name" binding:"required"`
 	LastName  string `json:"last_name" binding:"required"`
 	Email     string `json:"email" binding:"required,email"`
@@ -34,9 +34,9 @@ type signUpEmployeeRequest struct {
 	Password  string `json:"password" binding:"required,min=6"`
 }
 
-// SignUpEmployee: api/auth/register ユーザー登録
-func (ac *AuthController) SignUpEmployee(ctx *gin.Context) {
-	var req signUpEmployeeRequest
+// RegisterEmployee: api/auth/register ユーザー登録
+func (ac *AuthController) RegisterEmployee(ctx *gin.Context) {
+	var req registerEmployeeRequest
 
 	// application/jsonでレスポンスを返したいため、ShouldBindJSON
 	if err := ctx.ShouldBindJSON(&req); err != nil {
@@ -71,19 +71,19 @@ func (ac *AuthController) SignUpEmployee(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, response)
 }
 
-type signInEmployeeRequest struct {
+type logInEmployeeRequest struct {
 	Email    string `json:"email" binding:"required,email"`
 	Password string `json:"password" binding:"required"`
 }
 
-type signInEmployeeResponse struct {
+type logInEmployeeResponse struct {
 	AccessToken string           `json:"access_token"`
 	User        employeeResponse `json:"user"`
 }
 
-// SignInEmployee: api/auth/login ユーザー認証
-func (ac *AuthController) SignInEmployee(ctx *gin.Context) {
-	var req signInEmployeeRequest
+// LogInEmployee: api/auth/login ユーザー認証
+func (ac *AuthController) LogInEmployee(ctx *gin.Context) {
+	var req logInEmployeeRequest
 
 	// application/jsonでレスポンスを返したいため、ShouldBindJSON
 	if err := ctx.ShouldBindJSON(&req); err != nil {
@@ -116,7 +116,7 @@ func (ac *AuthController) SignInEmployee(ctx *gin.Context) {
 		return
 	}
 
-	response := signInEmployeeResponse{
+	response := logInEmployeeResponse{
 		AccessToken: accessToken,
 		User:        newUserResponse(employee),
 	}
