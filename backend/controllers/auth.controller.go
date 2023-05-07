@@ -40,13 +40,13 @@ func (ac *AuthController) RegisterEmployee(ctx *gin.Context) {
 
 	// application/jsonでレスポンスを返したいため、ShouldBindJSON
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, err.Error())
+		ctx.JSON(http.StatusBadRequest, utils.ErrorResponse(err))
 		return
 	}
 
 	hashedPassword, err := utils.HashPassword(req.Password)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, err.Error())
+		ctx.JSON(http.StatusInternalServerError, utils.ErrorResponse(err))
 		return
 	}
 
@@ -63,7 +63,7 @@ func (ac *AuthController) RegisterEmployee(ctx *gin.Context) {
 
 	employee, err := ac.store.CreateEmployee(ctx, args)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, err.Error())
+		ctx.JSON(http.StatusInternalServerError, utils.ErrorResponse(err))
 		return
 	}
 
@@ -87,7 +87,7 @@ func (ac *AuthController) LogInEmployee(ctx *gin.Context) {
 
 	// application/jsonでレスポンスを返したいため、ShouldBindJSON
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, err.Error())
+		ctx.JSON(http.StatusBadRequest, utils.ErrorResponse(err))
 		return
 	}
 
@@ -96,23 +96,23 @@ func (ac *AuthController) LogInEmployee(ctx *gin.Context) {
 	if err != nil {
 		if err == sql.ErrNoRows {
 			// ユーザーが存在しない場合404エラーを返す
-			ctx.JSON(http.StatusNotFound, err.Error())
+			ctx.JSON(http.StatusNotFound, utils.ErrorResponse(err))
 			return
 		}
-		ctx.JSON(http.StatusInternalServerError, err.Error())
+		ctx.JSON(http.StatusInternalServerError, utils.ErrorResponse(err))
 		return
 	}
 
 	err = utils.CheckPassword(req.Password, employee.HashedPassword)
 	if err != nil {
-		ctx.JSON(http.StatusUnauthorized, err.Error())
+		ctx.JSON(http.StatusUnauthorized, utils.ErrorResponse(err))
 		return
 	}
 
 	// アクセストークンを作成
 	accessToken, err := ac.tokenMaker.CreateToken(employee.Email, ac.config.AccessTokenDuration)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, err.Error())
+		ctx.JSON(http.StatusInternalServerError, utils.ErrorResponse(err))
 		return
 	}
 
