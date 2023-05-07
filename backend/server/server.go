@@ -38,7 +38,7 @@ func NewServer(config config.Config, store db.Store) (*Server, error) {
 	}
 
 	// create controllers
-	AuthController = *controllers.NewAuthController(store)
+	AuthController = *controllers.NewAuthController(config, store, tokenMaker)
 
 	// setup routers
 	server.setupRouter()
