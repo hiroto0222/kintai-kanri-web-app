@@ -1,4 +1,4 @@
-package db
+package db_test
 
 import (
 	"context"
@@ -8,15 +8,16 @@ import (
 	"testing"
 
 	"github.com/hiroto0222/kintai-kanri-web-app/config"
+	db "github.com/hiroto0222/kintai-kanri-web-app/db/sqlc"
 	_ "github.com/lib/pq"
 	"github.com/stretchr/testify/require"
 )
 
-var testQueries *Queries
+var testQueries *db.Queries
 var testDB *sql.DB
 
 func TestMain(m *testing.M) {
-	config, err := config.LoadConfig("../..")
+	config, err := config.LoadConfig("../../..")
 	if err != nil {
 		log.Fatalf("cannot load config, %q", err)
 	}
@@ -26,13 +27,13 @@ func TestMain(m *testing.M) {
 		log.Fatalf("cannot connect to db, %q", err)
 	}
 
-	testQueries = New(testDB)
+	testQueries = db.New(testDB)
 
 	os.Exit(m.Run())
 }
 
 // CreateTestEmployee creates a new employee for testing
-func CreateTestEmployee(t *testing.T, arg CreateEmployeeParams) Employee {
+func CreateTestEmployee(t *testing.T, arg db.CreateEmployeeParams) db.Employee {
 	employee, err := testQueries.CreateEmployee(context.Background(), arg)
 	require.NoError(t, err)
 	require.NotEmpty(t, employee)
@@ -47,7 +48,7 @@ func CreateTestEmployee(t *testing.T, arg CreateEmployeeParams) Employee {
 }
 
 // CreateTestRole creates a new role for testing
-func CreateTestRole(t *testing.T) Role {
+func CreateTestRole(t *testing.T) db.Role {
 	role, err := testQueries.CreateRole(context.Background(), "test role")
 	require.NoError(t, err)
 	require.NotEmpty(t, role)
