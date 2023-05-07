@@ -6,19 +6,24 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/hiroto0222/kintai-kanri-web-app/config"
 	db "github.com/hiroto0222/kintai-kanri-web-app/db/sqlc"
+	"github.com/hiroto0222/kintai-kanri-web-app/token"
 	"github.com/hiroto0222/kintai-kanri-web-app/utils"
 )
 
+// TODO: Refactor
 type AuthController struct {
-	store db.Store
+	config     config.Config
+	tokenMaker token.Maker
+	store      db.Store
 }
 
-func NewAuthController(store db.Store) *AuthController {
-	return &AuthController{store}
+func NewAuthController(config config.Config, store db.Store, tokenMaker token.Maker) *AuthController {
+	return &AuthController{config, tokenMaker, store}
 }
 
-type signUpEmployeeRequest struct {
+type registerEmployeeRequest struct {
 	FirstName string `json:"first_name" binding:"required"`
 	LastName  string `json:"last_name" binding:"required"`
 	Email     string `json:"email" binding:"required,email"`
@@ -29,31 +34,19 @@ type signUpEmployeeRequest struct {
 	Password  string `json:"password" binding:"required,min=6"`
 }
 
-type signUpEmployeeResponse struct {
-	ID        int32     `json:"id"`
-	FirstName string    `json:"first_name"`
-	LastName  string    `json:"last_name"`
-	Email     string    `json:"email"`
-	Phone     string    `json:"phone"`
-	Address   string    `json:"address"`
-	RoleID    int32     `json:"role_id"`
-	IsAdmin   bool      `json:"is_admin"`
-	CreatedAt time.Time `json:"created_at"`
-}
-
-// SignUpEmployee: api/auth/register ユーザー登録
-func (ac *AuthController) SignUpEmployee(ctx *gin.Context) {
-	var req signUpEmployeeRequest
+// RegisterEmployee: api/auth/register ユーザー登録
+func (ac *AuthController) RegisterEmployee(ctx *gin.Context) {
+	var req registerEmployeeRequest
 
 	// application/jsonでレスポンスを返したいため、ShouldBindJSON
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, err.Error())
+		ctx.JSON(http.StatusBadRequest, utils.ErrorResponse(err))
 		return
 	}
 
 	hashedPassword, err := utils.HashPassword(req.Password)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, err.Error())
+		ctx.JSON(http.StatusInternalServerError, utils.ErrorResponse(err))
 		return
 	}
 
@@ -70,26 +63,31 @@ func (ac *AuthController) SignUpEmployee(ctx *gin.Context) {
 
 	employee, err := ac.store.CreateEmployee(ctx, args)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, err.Error())
+		ctx.JSON(http.StatusInternalServerError, utils.ErrorResponse(err))
 		return
 	}
 
-	response := newEmployeeResponse(employee)
+	response := newUserResponse(employee)
 	ctx.JSON(http.StatusCreated, response)
 }
 
-type signInEmployee struct {
+type logInEmployeeRequest struct {
 	Email    string `json:"email" binding:"required,email"`
 	Password string `json:"password" binding:"required"`
 }
 
-// SignInEmployee: api/auth/login ユーザー認証
-func (ac *AuthController) SignInEmployee(ctx *gin.Context) {
-	var req signInEmployee
+type logInEmployeeResponse struct {
+	AccessToken string           `json:"access_token"`
+	User        employeeResponse `json:"user"`
+}
+
+// LogInEmployee: api/auth/login ユーザー認証
+func (ac *AuthController) LogInEmployee(ctx *gin.Context) {
+	var req logInEmployeeRequest
 
 	// application/jsonでレスポンスを返したいため、ShouldBindJSON
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, err.Error())
+		ctx.JSON(http.StatusBadRequest, utils.ErrorResponse(err))
 		return
 	}
 
@@ -98,27 +96,47 @@ func (ac *AuthController) SignInEmployee(ctx *gin.Context) {
 	if err != nil {
 		if err == sql.ErrNoRows {
 			// ユーザーが存在しない場合404エラーを返す
-			ctx.JSON(http.StatusNotFound, err.Error())
+			ctx.JSON(http.StatusNotFound, utils.ErrorResponse(err))
 			return
 		}
-		ctx.JSON(http.StatusInternalServerError, err.Error())
+		ctx.JSON(http.StatusInternalServerError, utils.ErrorResponse(err))
 		return
 	}
 
 	err = utils.CheckPassword(req.Password, employee.HashedPassword)
 	if err != nil {
-		ctx.JSON(http.StatusUnauthorized, err.Error())
+		ctx.JSON(http.StatusUnauthorized, utils.ErrorResponse(err))
 		return
 	}
 
-	// TODO: Access token
+	// アクセストークンを作成
+	accessToken, err := ac.tokenMaker.CreateToken(employee.Email, ac.config.AccessTokenDuration)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, utils.ErrorResponse(err))
+		return
+	}
 
-	response := newEmployeeResponse(employee)
+	response := logInEmployeeResponse{
+		AccessToken: accessToken,
+		User:        newUserResponse(employee),
+	}
 	ctx.JSON(http.StatusOK, response)
 }
 
-func newEmployeeResponse(employee db.Employee) signUpEmployeeResponse {
-	return signUpEmployeeResponse{
+type employeeResponse struct {
+	ID        int32     `json:"id"`
+	FirstName string    `json:"first_name"`
+	LastName  string    `json:"last_name"`
+	Email     string    `json:"email"`
+	Phone     string    `json:"phone"`
+	Address   string    `json:"address"`
+	RoleID    int32     `json:"role_id"`
+	IsAdmin   bool      `json:"is_admin"`
+	CreatedAt time.Time `json:"created_at"`
+}
+
+func newUserResponse(employee db.Employee) employeeResponse {
+	return employeeResponse{
 		ID:        employee.ID,
 		FirstName: employee.FirstName,
 		LastName:  employee.LastName,

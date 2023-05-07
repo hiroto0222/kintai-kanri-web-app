@@ -30,3 +30,8 @@ func RandomString(n int) string {
 
 	return sb.String()
 }
+
+// RandomEmail generates a random email address
+func RandomEmail() string {
+	return RandomString(6) + "@test.com"
+}

@@ -30,7 +30,7 @@ sqlc-generate:
 
 # run tests
 test:
-	docker-compose exec backend go test -v -cover ./... -coverprofile=cover.out
+	docker-compose exec backend go test -v -coverpkg ./... ./... -coverprofile=cover.out
 
 # check test coverage
 see-coverage:

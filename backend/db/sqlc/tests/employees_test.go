@@ -1,17 +1,18 @@
-package db
+package db_test
 
 import (
 	"context"
 	"fmt"
 	"testing"
 
+	db "github.com/hiroto0222/kintai-kanri-web-app/db/sqlc"
 	"github.com/stretchr/testify/require"
 )
 
 // succeeds in creating a new employee
 func TestCreateEmployee(t *testing.T) {
 	role := CreateTestRole(t)
-	CreateTestEmployee(t, CreateEmployeeParams{
+	CreateTestEmployee(t, db.CreateEmployeeParams{
 		FirstName: "浩士",
 		LastName:  "青山",
 		Email:     "test@email.com",
@@ -24,7 +25,7 @@ func TestCreateEmployee(t *testing.T) {
 // succeeds in getting an employee by ID
 func TestGetEmployeeByID(t *testing.T) {
 	role := CreateTestRole(t)
-	employee1 := CreateTestEmployee(t, CreateEmployeeParams{
+	employee1 := CreateTestEmployee(t, db.CreateEmployeeParams{
 		FirstName: "浩士",
 		LastName:  "青山",
 		Email:     "test@email.com",
@@ -43,7 +44,7 @@ func TestGetEmployeeByID(t *testing.T) {
 func TestListEmployees(t *testing.T) {
 	role := CreateTestRole(t)
 	for i := 0; i < 10; i++ {
-		CreateTestEmployee(t, CreateEmployeeParams{
+		CreateTestEmployee(t, db.CreateEmployeeParams{
 			FirstName: "浩士",
 			LastName:  "青山",
 			Email:     fmt.Sprintf("test{%v}@email.com", i),
@@ -53,7 +54,7 @@ func TestListEmployees(t *testing.T) {
 		})
 	}
 
-	arg := ListEmployeesParams{
+	arg := db.ListEmployeesParams{
 		Limit:  5,
 		Offset: 5,
 	}
@@ -67,7 +68,7 @@ func TestListEmployees(t *testing.T) {
 	}
 }
 
-func requireEqualEmployee(t *testing.T, employee1, employee2 Employee) {
+func requireEqualEmployee(t *testing.T, employee1, employee2 db.Employee) {
 	require.Equal(t, employee1.ID, employee2.ID)
 	require.Equal(t, employee1.FirstName, employee2.FirstName)
 	require.Equal(t, employee1.LastName, employee2.LastName)

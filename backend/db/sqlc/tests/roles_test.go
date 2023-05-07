@@ -1,9 +1,10 @@
-package db
+package db_test
 
 import (
 	"context"
 	"testing"
 
+	db "github.com/hiroto0222/kintai-kanri-web-app/db/sqlc"
 	"github.com/stretchr/testify/require"
 )
 
@@ -28,7 +29,7 @@ func TestListRoles(t *testing.T) {
 		CreateTestRole(t)
 	}
 
-	arg := ListRolesParams{
+	arg := db.ListRolesParams{
 		Limit:  5,
 		Offset: 5,
 	}

@@ -34,6 +34,9 @@ func main() {
 	fmt.Println("DB connected successfully...")
 
 	// start server
-	server := server.NewServer(config, store)
+	server, err := server.NewServer(config, store)
+	if err != nil {
+		log.Fatalf("could not create server, %v", err)
+	}
 	log.Fatal(server.Start())
 }

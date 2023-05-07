@@ -2,54 +2,23 @@ package controllers_test
 
 import (
 	"bytes"
+	"database/sql"
 	"encoding/json"
-	"fmt"
-	"io"
 	"net/http"
 	"net/http/httptest"
-	"reflect"
 	"testing"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
 	mockdb "github.com/hiroto0222/kintai-kanri-web-app/db/mock"
 	db "github.com/hiroto0222/kintai-kanri-web-app/db/sqlc"
-	"github.com/hiroto0222/kintai-kanri-web-app/utils"
+	"github.com/hiroto0222/kintai-kanri-web-app/testutils"
 	"github.com/stretchr/testify/require"
 )
 
-// Employee のカスタムマッチャーを作成
-type eqCreateEmployeeParamsMatcher struct {
-	arg      db.CreateEmployeeParams
-	password string
-}
-
-func (e eqCreateEmployeeParamsMatcher) Matches(x interface{}) bool {
-	arg, ok := x.(db.CreateEmployeeParams)
-	if !ok {
-		return false
-	}
-
-	err := utils.CheckPassword(e.password, arg.HashedPassword)
-	if err != nil {
-		return false
-	}
-
-	e.arg.HashedPassword = arg.HashedPassword
-	return reflect.DeepEqual(e.arg, arg)
-}
-
-func (e eqCreateEmployeeParamsMatcher) String() string {
-	return fmt.Sprintf("matches arg %v and password %v", e.arg, e.password)
-}
-
-func EqCreateEmployeeParams(arg db.CreateEmployeeParams, password string) gomock.Matcher {
-	return eqCreateEmployeeParamsMatcher{arg, password}
-}
-
-func TestSignUpEmployeeAPI(t *testing.T) {
-	role := createTestRole()
-	employee, password := createTestEmployee(t, role)
+func TestRegisterEmployeeAPI(t *testing.T) {
+	role := testutils.CreateTestRole()
+	employee, password := testutils.CreateTestEmployee(t, role)
 
 	testCases := []struct {
 		name          string
@@ -80,13 +49,13 @@ func TestSignUpEmployeeAPI(t *testing.T) {
 					IsAdmin:   employee.IsAdmin,
 				}
 				store.EXPECT().
-					CreateEmployee(gomock.Any(), EqCreateEmployeeParams(arg, password)).
+					CreateEmployee(gomock.Any(), testutils.EqCreateEmployeeParams(arg, password)).
 					Times(1).
 					Return(employee, nil)
 			},
 			checkResponse: func(recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusCreated, recorder.Code)
-				requireBodyMatchEmployee(t, recorder.Body, employee)
+				testutils.RequireBodyMatchEmployee(t, recorder.Body, employee)
 			},
 		},
 		{
@@ -112,13 +81,13 @@ func TestSignUpEmployeeAPI(t *testing.T) {
 					IsAdmin:   true,
 				}
 				store.EXPECT().
-					CreateEmployee(gomock.Any(), EqCreateEmployeeParams(arg, password)).
+					CreateEmployee(gomock.Any(), testutils.EqCreateEmployeeParams(arg, password)).
 					Times(1).
 					Return(employee, nil)
 			},
 			checkResponse: func(recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusCreated, recorder.Code)
-				requireBodyMatchEmployee(t, recorder.Body, employee)
+				testutils.RequireBodyMatchEmployee(t, recorder.Body, employee)
 			},
 		},
 	}
@@ -136,7 +105,7 @@ func TestSignUpEmployeeAPI(t *testing.T) {
 			tc.buildStubs(store)
 
 			// テストサーバを起動
-			server := newTestServer(t, store)
+			server := testutils.NewTestServer(t, store)
 			recorder := httptest.NewRecorder()
 
 			// テスト対象のURLとリクエストボディを定義
@@ -154,44 +123,93 @@ func TestSignUpEmployeeAPI(t *testing.T) {
 	}
 }
 
-func createTestEmployee(t *testing.T, role db.Role) (db.Employee, string) {
-	password := utils.RandomString(10)
-	hashedPassword, err := utils.HashPassword(password)
-	require.NoError(t, err)
+func TestLogInEmployee(t *testing.T) {
+	role := testutils.CreateTestRole()
+	employee, password := testutils.CreateTestEmployee(t, role)
 
-	return db.Employee{
-		FirstName:      "Hiroto",
-		LastName:       "Aoyama",
-		Email:          "test@email.com",
-		Phone:          "090-1234-5678",
-		Address:        "Tokyo",
-		HashedPassword: hashedPassword,
-		RoleID:         role.ID,
-	}, password
-}
-
-func createTestRole() db.Role {
-	return db.Role{
-		ID:   1,
-		Name: "test role",
+	testCases := []struct {
+		name          string
+		body          gin.H
+		buildStubs    func(store *mockdb.MockStore)
+		checkResponse func(recorder *httptest.ResponseRecorder)
+	}{
+		{
+			name: "OK",
+			body: gin.H{
+				"email":    employee.Email,
+				"password": password,
+			},
+			buildStubs: func(store *mockdb.MockStore) {
+				store.EXPECT().
+					GetEmployeeByEmail(gomock.Any(), gomock.Eq(employee.Email)).
+					Times(1).
+					Return(employee, nil)
+			},
+			checkResponse: func(recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusOK, recorder.Code)
+			},
+		},
+		{
+			name: "EmployeeNotFound",
+			body: gin.H{
+				"email":    "notfound@email.com",
+				"password": password,
+			},
+			buildStubs: func(store *mockdb.MockStore) {
+				store.EXPECT().
+					GetEmployeeByEmail(gomock.Any(), gomock.Any()).
+					Times(1).
+					Return(db.Employee{}, sql.ErrNoRows)
+			},
+			checkResponse: func(recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusNotFound, recorder.Code)
+			},
+		},
+		{
+			name: "WrongPassword",
+			body: gin.H{
+				"email":    employee.Email,
+				"password": "wrongpassword",
+			},
+			buildStubs: func(store *mockdb.MockStore) {
+				store.EXPECT().
+					GetEmployeeByEmail(gomock.Any(), gomock.Eq(employee.Email)).
+					Times(1).
+					Return(employee, nil)
+			},
+			checkResponse: func(recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusUnauthorized, recorder.Code)
+			},
+		},
 	}
-}
 
-func requireBodyMatchEmployee(t *testing.T, body *bytes.Buffer, employee db.Employee) {
-	data, err := io.ReadAll(body)
-	require.NoError(t, err)
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			// mockのコントローラを作成
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
 
-	var got db.Employee
-	err = json.Unmarshal(data, &got)
-	fmt.Println(got)
-	require.NoError(t, err)
+			// 実際DBに接続せず db.Store インターフェイスのmockを作成
+			store := mockdb.NewMockStore(ctrl)
 
-	require.Equal(t, employee.FirstName, got.FirstName)
-	require.Equal(t, employee.LastName, got.LastName)
-	require.Equal(t, employee.Email, got.Email)
-	require.Equal(t, employee.Phone, got.Phone)
-	require.Equal(t, employee.Address, got.Address)
-	require.Equal(t, employee.RoleID, got.RoleID)
-	require.Equal(t, employee.IsAdmin, got.IsAdmin)
-	require.Empty(t, got.HashedPassword)
+			// 作成したmockに対して期待する呼び出し関数とその引数、返り値を定義
+			tc.buildStubs(store)
+
+			// テストサーバを起動
+			server := testutils.NewTestServer(t, store)
+			recorder := httptest.NewRecorder()
+
+			// テスト対象のURLとリクエストボディを定義
+			url := "/api/auth/login"
+			data, err := json.Marshal(tc.body)
+			require.NoError(t, err)
+
+			// テストリクエストを作成
+			request, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(data))
+			require.NoError(t, err)
+
+			server.Router.ServeHTTP(recorder, request)
+			tc.checkResponse(recorder)
+		})
+	}
 }
