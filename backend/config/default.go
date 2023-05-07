@@ -1,6 +1,8 @@
 package config
 
 import (
+	"time"
+
 	"github.com/spf13/viper"
 )
 
@@ -11,6 +13,9 @@ type Config struct {
 	DBSource string `mapstructure:"POSTGRES_SOURCE"`
 	Port     string `mapstructure:"PORT"`
 	Origin   string `mapstructure:"ORIGIN"`
+
+	TokenSymmetricKey   string        `mapstructure:"TOKEN_SYMMETRIC_KEY"`
+	AccessTokenDuration time.Duration `mapstructure:"ACCESS_TOKEN_DURATION"`
 }
 
 func LoadConfig(path string) (config Config, err error) {

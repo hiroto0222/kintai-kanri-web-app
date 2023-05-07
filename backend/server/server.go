@@ -1,6 +1,7 @@
 package server
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -8,6 +9,7 @@ import (
 	"github.com/hiroto0222/kintai-kanri-web-app/controllers"
 	db "github.com/hiroto0222/kintai-kanri-web-app/db/sqlc"
 	"github.com/hiroto0222/kintai-kanri-web-app/routes"
+	"github.com/hiroto0222/kintai-kanri-web-app/token"
 )
 
 var (
@@ -16,16 +18,23 @@ var (
 
 // 全てのHTTPリクエストを処理するHTTP APIサーバ
 type Server struct {
-	Config config.Config
-	Store  db.Store    // dbを持つために構造体にする
-	Router *gin.Engine // 各APIリクエストを正しいハンドラに送信して処理する
+	Config     config.Config
+	Store      db.Store    // dbを持つために構造体にする
+	Router     *gin.Engine // 各APIリクエストを正しいハンドラに送信して処理する
+	TokenMaker token.Maker // トークンを生成する構造体
 }
 
 // NewServer creates a new HTTP server
-func NewServer(config config.Config, store db.Store) *Server {
+func NewServer(config config.Config, store db.Store) (*Server, error) {
+	tokenMaker, err := token.NewJWTMaker(config.TokenSymmetricKey)
+	if err != nil {
+		return nil, fmt.Errorf("cannot create token maker, %q", err)
+	}
+
 	server := &Server{
-		Config: config,
-		Store:  store,
+		Config:     config,
+		Store:      store,
+		TokenMaker: tokenMaker,
 	}
 
 	// create controllers
@@ -34,7 +43,7 @@ func NewServer(config config.Config, store db.Store) *Server {
 	// setup routers
 	server.setupRouter()
 
-	return server
+	return server, nil
 }
 
 // setupRouter sets up the HTTP router for all api endpoints
