@@ -13,7 +13,8 @@ import (
 )
 
 var (
-	AuthController controllers.AuthController
+	AuthController     controllers.AuthController
+	EmployeeController controllers.EmployeeController
 )
 
 // 全てのHTTPリクエストを処理するHTTP APIサーバ
@@ -39,6 +40,7 @@ func NewServer(config config.Config, store db.Store) (*Server, error) {
 
 	// create controllers
 	AuthController = *controllers.NewAuthController(config, store, tokenMaker)
+	EmployeeController = *controllers.NewEmployeeController(config, store, tokenMaker)
 
 	// setup routers
 	server.setupRouter()
@@ -58,6 +60,9 @@ func (server *Server) setupRouter() {
 
 	AuthRoutes := routes.NewAuthRoutes(AuthController)
 	AuthRoutes.AuthRoute(apiRoutes)
+
+	EmployeeRoutes := routes.NewEmployeeRoutes(EmployeeController)
+	EmployeeRoutes.EmployeeRoute(apiRoutes)
 
 	server.Router = router
 }
