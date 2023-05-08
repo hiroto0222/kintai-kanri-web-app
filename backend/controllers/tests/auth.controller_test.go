@@ -7,27 +7,32 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
 	mockdb "github.com/hiroto0222/kintai-kanri-web-app/db/mock"
 	db "github.com/hiroto0222/kintai-kanri-web-app/db/sqlc"
+	"github.com/hiroto0222/kintai-kanri-web-app/middlewares"
 	"github.com/hiroto0222/kintai-kanri-web-app/testutils"
+	"github.com/hiroto0222/kintai-kanri-web-app/token"
 	"github.com/stretchr/testify/require"
 )
 
 func TestRegisterEmployeeAPI(t *testing.T) {
 	role := testutils.CreateTestRole()
 	employee, password := testutils.CreateTestEmployee(t, role)
+	adminEmployee, _ := testutils.CreateTestAdminEmployee(t, role)
 
 	testCases := []struct {
 		name          string
 		body          gin.H
+		setupAuth     func(t *testing.T, request *http.Request, tokenMaker token.Maker)
 		buildStubs    func(store *mockdb.MockStore)
 		checkResponse func(recorder *httptest.ResponseRecorder)
 	}{
 		{
-			name: "OK (create non admin employee)",
+			name: "OK (create employee as Admin)",
 			body: gin.H{
 				"first_name": employee.FirstName,
 				"last_name":  employee.LastName,
@@ -37,6 +42,9 @@ func TestRegisterEmployeeAPI(t *testing.T) {
 				"role_id":    employee.RoleID,
 				"is_admin":   employee.IsAdmin,
 				"password":   password,
+			},
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				testutils.AddAuthorization(t, request, tokenMaker, middlewares.AuthorizationTypeBearer, adminEmployee.ID.String(), adminEmployee.IsAdmin, time.Minute)
 			},
 			buildStubs: func(store *mockdb.MockStore) {
 				arg := db.CreateEmployeeParams{
@@ -59,7 +67,7 @@ func TestRegisterEmployeeAPI(t *testing.T) {
 			},
 		},
 		{
-			name: "OK (create admin employee)",
+			name: "NotAuthorized (create employee as Non-Admin)",
 			body: gin.H{
 				"first_name": employee.FirstName,
 				"last_name":  employee.LastName,
@@ -69,6 +77,9 @@ func TestRegisterEmployeeAPI(t *testing.T) {
 				"role_id":    employee.RoleID,
 				"is_admin":   true,
 				"password":   password,
+			},
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				testutils.AddAuthorization(t, request, tokenMaker, middlewares.AuthorizationTypeBearer, employee.ID.String(), employee.IsAdmin, time.Minute)
 			},
 			buildStubs: func(store *mockdb.MockStore) {
 				arg := db.CreateEmployeeParams{
@@ -82,12 +93,10 @@ func TestRegisterEmployeeAPI(t *testing.T) {
 				}
 				store.EXPECT().
 					CreateEmployee(gomock.Any(), testutils.EqCreateEmployeeParams(arg, password)).
-					Times(1).
-					Return(employee, nil)
+					Times(0)
 			},
 			checkResponse: func(recorder *httptest.ResponseRecorder) {
-				require.Equal(t, http.StatusCreated, recorder.Code)
-				testutils.RequireBodyMatchEmployee(t, recorder.Body, employee)
+				require.Equal(t, http.StatusUnauthorized, recorder.Code)
 			},
 		},
 	}
@@ -117,6 +126,7 @@ func TestRegisterEmployeeAPI(t *testing.T) {
 			request, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(data))
 			require.NoError(t, err)
 
+			tc.setupAuth(t, request, server.TokenMaker)
 			server.Router.ServeHTTP(recorder, request)
 			tc.checkResponse(recorder)
 		})
@@ -145,7 +155,7 @@ func TestLogInEmployee(t *testing.T) {
 					Times(1).
 					Return(employee, nil)
 				store.EXPECT().
-					CreateSession(gomock.Any(), gomock.Any()). // TODO:
+					CreateSession(gomock.Any(), gomock.Any()).
 					Times(1)
 			},
 			checkResponse: func(recorder *httptest.ResponseRecorder) {
