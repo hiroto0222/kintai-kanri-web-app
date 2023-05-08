@@ -25,14 +25,15 @@ func NewJWTMaker(secretKey string) (Maker, error) {
 }
 
 // CreateToken は JWT トークンをユーザーのメールアドレスで生成する
-func (maker *JWTMaker) CreateToken(email string, duration time.Duration) (string, error) {
+func (maker *JWTMaker) CreateToken(email string, duration time.Duration) (string, *Payload, error) {
 	payload, err := NewPayload(email, duration)
 	if err != nil {
-		return "", err
+		return "", payload, err
 	}
 
 	jwtToken := jwt.NewWithClaims(jwt.SigningMethodHS256, payload)
-	return jwtToken.SignedString([]byte(maker.secretKey))
+	token, err := jwtToken.SignedString([]byte(maker.secretKey))
+	return token, payload, err
 }
 
 // VerifyToken は JWT トークンの署名を検証し、そのトークンが有効であるかどうかを確認する

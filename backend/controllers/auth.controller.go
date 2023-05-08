@@ -78,8 +78,12 @@ type logInEmployeeRequest struct {
 }
 
 type logInEmployeeResponse struct {
-	AccessToken string           `json:"access_token"`
-	User        employeeResponse `json:"user"`
+	SessionID             uuid.UUID        `json:"session_id"`
+	AccessToken           string           `json:"access_token"`
+	AccessTokenExpiresAt  time.Time        `json:"access_token_expires_at"`
+	RefreshToken          string           `json:"refresh_token"`
+	RefreshTokenExpiresAt time.Time        `json:"refresh_token_expires_at"`
+	User                  employeeResponse `json:"user"`
 }
 
 // LogInEmployee: api/auth/login ユーザー認証
@@ -111,16 +115,41 @@ func (ac *AuthController) LogInEmployee(ctx *gin.Context) {
 	}
 
 	// アクセストークンを作成
-	accessToken, err := ac.tokenMaker.CreateToken(employee.Email, ac.config.AccessTokenDuration)
+	accessToken, accessPayload, err := ac.tokenMaker.CreateToken(employee.Email, ac.config.AccessTokenDuration)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, utils.ErrorResponse(err))
+		return
+	}
+
+	// リフレッシュトークンを作成
+	refreshToken, refreshPayload, err := ac.tokenMaker.CreateToken(employee.Email, ac.config.RefreshTokenDuration)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, utils.ErrorResponse(err))
+		return
+	}
+
+	session, err := ac.store.CreateSession(ctx, db.CreateSessionParams{
+		ID:           refreshPayload.ID,
+		Email:        employee.Email,
+		EmployeeID:   employee.ID,
+		RefreshToken: refreshToken,
+		IsBlocked:    false,
+		ExpiresAt:    refreshPayload.ExpiredAt,
+	})
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, utils.ErrorResponse(err))
 		return
 	}
 
 	response := logInEmployeeResponse{
-		AccessToken: accessToken,
-		User:        newUserResponse(employee),
+		SessionID:             session.ID,
+		AccessToken:           accessToken,
+		AccessTokenExpiresAt:  accessPayload.ExpiredAt,
+		RefreshToken:          refreshToken,
+		RefreshTokenExpiresAt: refreshPayload.ExpiredAt,
+		User:                  newUserResponse(employee),
 	}
+
 	ctx.JSON(http.StatusOK, response)
 }
 
