@@ -9,6 +9,7 @@ import (
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
+	uuid "github.com/google/uuid"
 	db "github.com/hiroto0222/kintai-kanri-web-app/db/sqlc"
 )
 
@@ -65,8 +66,23 @@ func (mr *MockStoreMockRecorder) CreateRole(arg0, arg1 interface{}) *gomock.Call
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateRole", reflect.TypeOf((*MockStore)(nil).CreateRole), arg0, arg1)
 }
 
+// CreateSession mocks base method.
+func (m *MockStore) CreateSession(arg0 context.Context, arg1 db.CreateSessionParams) (db.Session, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateSession", arg0, arg1)
+	ret0, _ := ret[0].(db.Session)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateSession indicates an expected call of CreateSession.
+func (mr *MockStoreMockRecorder) CreateSession(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateSession", reflect.TypeOf((*MockStore)(nil).CreateSession), arg0, arg1)
+}
+
 // DeleteEmployee mocks base method.
-func (m *MockStore) DeleteEmployee(arg0 context.Context, arg1 int32) error {
+func (m *MockStore) DeleteEmployee(arg0 context.Context, arg1 uuid.UUID) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DeleteEmployee", arg0, arg1)
 	ret0, _ := ret[0].(error)
@@ -109,7 +125,7 @@ func (mr *MockStoreMockRecorder) GetEmployeeByEmail(arg0, arg1 interface{}) *gom
 }
 
 // GetEmployeeById mocks base method.
-func (m *MockStore) GetEmployeeById(arg0 context.Context, arg1 int32) (db.Employee, error) {
+func (m *MockStore) GetEmployeeById(arg0 context.Context, arg1 uuid.UUID) (db.Employee, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetEmployeeById", arg0, arg1)
 	ret0, _ := ret[0].(db.Employee)
@@ -136,6 +152,21 @@ func (m *MockStore) GetRoleByID(arg0 context.Context, arg1 int32) (db.Role, erro
 func (mr *MockStoreMockRecorder) GetRoleByID(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRoleByID", reflect.TypeOf((*MockStore)(nil).GetRoleByID), arg0, arg1)
+}
+
+// GetSession mocks base method.
+func (m *MockStore) GetSession(arg0 context.Context, arg1 uuid.UUID) (db.Session, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetSession", arg0, arg1)
+	ret0, _ := ret[0].(db.Session)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetSession indicates an expected call of GetSession.
+func (mr *MockStoreMockRecorder) GetSession(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSession", reflect.TypeOf((*MockStore)(nil).GetSession), arg0, arg1)
 }
 
 // ListEmployees mocks base method.

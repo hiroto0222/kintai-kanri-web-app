@@ -6,16 +6,20 @@ package db
 
 import (
 	"context"
+
+	"github.com/google/uuid"
 )
 
 type Querier interface {
 	CreateEmployee(ctx context.Context, arg CreateEmployeeParams) (Employee, error)
 	CreateRole(ctx context.Context, name string) (Role, error)
-	DeleteEmployee(ctx context.Context, id int32) error
+	CreateSession(ctx context.Context, arg CreateSessionParams) (Session, error)
+	DeleteEmployee(ctx context.Context, id uuid.UUID) error
 	DeleteRole(ctx context.Context, id int32) error
 	GetEmployeeByEmail(ctx context.Context, email string) (Employee, error)
-	GetEmployeeById(ctx context.Context, id int32) (Employee, error)
+	GetEmployeeById(ctx context.Context, id uuid.UUID) (Employee, error)
 	GetRoleByID(ctx context.Context, id int32) (Role, error)
+	GetSession(ctx context.Context, id uuid.UUID) (Session, error)
 	ListEmployees(ctx context.Context, arg ListEmployeesParams) ([]Employee, error)
 	ListRoles(ctx context.Context, arg ListRolesParams) ([]Role, error)
 }

@@ -7,6 +7,9 @@ package db
 
 import (
 	"context"
+	"database/sql"
+
+	"github.com/google/uuid"
 )
 
 const createEmployee = `-- name: CreateEmployee :one
@@ -26,14 +29,14 @@ RETURNING id, first_name, last_name, email, phone, address, hashed_password, rol
 `
 
 type CreateEmployeeParams struct {
-	FirstName      string `json:"first_name"`
-	LastName       string `json:"last_name"`
-	Email          string `json:"email"`
-	Phone          string `json:"phone"`
-	Address        string `json:"address"`
-	HashedPassword string `json:"hashed_password"`
-	RoleID         int32  `json:"role_id"`
-	IsAdmin        bool   `json:"is_admin"`
+	FirstName      string        `json:"first_name"`
+	LastName       string        `json:"last_name"`
+	Email          string        `json:"email"`
+	Phone          string        `json:"phone"`
+	Address        string        `json:"address"`
+	HashedPassword string        `json:"hashed_password"`
+	RoleID         sql.NullInt32 `json:"role_id"`
+	IsAdmin        bool          `json:"is_admin"`
 }
 
 func (q *Queries) CreateEmployee(ctx context.Context, arg CreateEmployeeParams) (Employee, error) {
@@ -68,7 +71,7 @@ DELETE FROM "Employees"
 WHERE id = $1
 `
 
-func (q *Queries) DeleteEmployee(ctx context.Context, id int32) error {
+func (q *Queries) DeleteEmployee(ctx context.Context, id uuid.UUID) error {
 	_, err := q.db.ExecContext(ctx, deleteEmployee, id)
 	return err
 }
@@ -101,7 +104,7 @@ SELECT id, first_name, last_name, email, phone, address, hashed_password, role_i
 WHERE id = $1 LIMIT 1
 `
 
-func (q *Queries) GetEmployeeById(ctx context.Context, id int32) (Employee, error) {
+func (q *Queries) GetEmployeeById(ctx context.Context, id uuid.UUID) (Employee, error) {
 	row := q.db.QueryRowContext(ctx, getEmployeeById, id)
 	var i Employee
 	err := row.Scan(

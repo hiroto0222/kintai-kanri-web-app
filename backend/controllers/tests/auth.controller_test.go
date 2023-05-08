@@ -144,6 +144,9 @@ func TestLogInEmployee(t *testing.T) {
 					GetEmployeeByEmail(gomock.Any(), gomock.Eq(employee.Email)).
 					Times(1).
 					Return(employee, nil)
+				store.EXPECT().
+					CreateSession(gomock.Any(), gomock.Any()). // TODO:
+					Times(1)
 			},
 			checkResponse: func(recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusOK, recorder.Code)

@@ -5,33 +5,36 @@
 package db
 
 import (
+	"database/sql"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 type ClockIn struct {
 	ID          int32     `json:"id"`
-	EmployeeID  int32     `json:"employee_id"`
+	EmployeeID  uuid.UUID `json:"employee_id"`
 	ClockInTime time.Time `json:"clock_in_time"`
 }
 
 type ClockOut struct {
 	ID           int32     `json:"id"`
-	EmployeeID   int32     `json:"employee_id"`
+	EmployeeID   uuid.UUID `json:"employee_id"`
 	ClockInID    int32     `json:"clock_in_id"`
 	ClockOutTime time.Time `json:"clock_out_time"`
 }
 
 type Employee struct {
-	ID             int32     `json:"id"`
-	FirstName      string    `json:"first_name"`
-	LastName       string    `json:"last_name"`
-	Email          string    `json:"email"`
-	Phone          string    `json:"phone"`
-	Address        string    `json:"address"`
-	HashedPassword string    `json:"hashed_password"`
-	RoleID         int32     `json:"role_id"`
-	IsAdmin        bool      `json:"is_admin"`
-	CreatedAt      time.Time `json:"created_at"`
+	ID             uuid.UUID     `json:"id"`
+	FirstName      string        `json:"first_name"`
+	LastName       string        `json:"last_name"`
+	Email          string        `json:"email"`
+	Phone          string        `json:"phone"`
+	Address        string        `json:"address"`
+	HashedPassword string        `json:"hashed_password"`
+	RoleID         sql.NullInt32 `json:"role_id"`
+	IsAdmin        bool          `json:"is_admin"`
+	CreatedAt      time.Time     `json:"created_at"`
 }
 
 type Role struct {
@@ -39,9 +42,19 @@ type Role struct {
 	Name string `json:"name"`
 }
 
+type Session struct {
+	ID           uuid.UUID `json:"id"`
+	Email        string    `json:"email"`
+	EmployeeID   uuid.UUID `json:"employee_id"`
+	RefreshToken string    `json:"refresh_token"`
+	IsBlocked    bool      `json:"is_blocked"`
+	ExpiresAt    time.Time `json:"expires_at"`
+	CreatedAt    time.Time `json:"created_at"`
+}
+
 type Shift struct {
 	ID         int32     `json:"id"`
-	EmployeeID int32     `json:"employee_id"`
+	EmployeeID uuid.UUID `json:"employee_id"`
 	StartTime  time.Time `json:"start_time"`
 	EndTime    time.Time `json:"end_time"`
 }

@@ -1,12 +1,14 @@
 import { AxiosResponse } from "axios";
 import { useContext } from "react";
-import { authContext } from "../context/auth";
-import { AuthActionEnum } from "../context/auth/authAction";
-import api from "../services/api";
-import { UserLoginResponse } from "../services/auth";
+import { useNavigate } from "react-router-dom";
+import { authContext } from "../../context/auth";
+import { AuthActionEnum } from "../../context/auth/authAction";
+import api from "../../services/api";
+import { UserLoginResponse } from "../../services/auth";
 
-const useAuth = () => {
+const useAuthApi = () => {
   const { authDispatch } = useContext(authContext);
+  const navigate = useNavigate();
 
   const login = async (email: string, password: string) => {
     const url = "auth/login";
@@ -24,12 +26,20 @@ const useAuth = () => {
         type: AuthActionEnum.LOG_IN,
         payload: response.data,
       });
+      console.log(response.data);
+      navigate("/me");
     } catch (error) {
       console.log(error);
     }
   };
 
-  return { login };
+  const logout = () => {
+    authDispatch({
+      type: AuthActionEnum.LOG_OUT,
+    });
+  };
+
+  return { login, logout };
 };
 
-export default useAuth;
+export default useAuthApi;
