@@ -36,7 +36,7 @@ type registerEmployeeRequest struct {
 	Password  string        `json:"password" binding:"required,min=6"`
 }
 
-// RegisterEmployee: api/auth/register ユーザー登録
+// RegisterEmployee: api/auth/register 従業員登録（権限: Admin）
 func (ac *AuthController) RegisterEmployee(ctx *gin.Context) {
 	var req registerEmployeeRequest
 
@@ -116,14 +116,14 @@ func (ac *AuthController) LogInEmployee(ctx *gin.Context) {
 	}
 
 	// アクセストークンを作成
-	accessToken, accessPayload, err := ac.tokenMaker.CreateToken(employee.ID.String(), ac.config.AccessTokenDuration)
+	accessToken, accessPayload, err := ac.tokenMaker.CreateToken(employee.ID.String(), employee.IsAdmin, ac.config.AccessTokenDuration)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, utils.ErrorResponse(err))
 		return
 	}
 
 	// リフレッシュトークンを作成
-	refreshToken, refreshPayload, err := ac.tokenMaker.CreateToken(employee.ID.String(), ac.config.RefreshTokenDuration)
+	refreshToken, refreshPayload, err := ac.tokenMaker.CreateToken(employee.ID.String(), employee.IsAdmin, ac.config.RefreshTokenDuration)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, utils.ErrorResponse(err))
 		return
@@ -216,7 +216,7 @@ func (ac *AuthController) RefreshAccessToken(ctx *gin.Context) {
 		return
 	}
 
-	accessToken, accessPayload, err := ac.tokenMaker.CreateToken(refreshPayload.EmployeeID, ac.config.AccessTokenDuration)
+	accessToken, accessPayload, err := ac.tokenMaker.CreateToken(refreshPayload.EmployeeID, refreshPayload.IsAdmin, ac.config.AccessTokenDuration)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, utils.ErrorResponse(err))
 		return

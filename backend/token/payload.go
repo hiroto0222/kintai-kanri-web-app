@@ -14,12 +14,13 @@ var ErrInvalidToken = errors.New("token is invalid")
 type Payload struct {
 	ID         uuid.UUID `json:"id"`
 	EmployeeID string    `json:"employee_id"`
+	IsAdmin    bool      `json:"is_admin"`
 	IssuedAt   time.Time `json:"issued_at"`
 	ExpiredAt  time.Time `json:"expired_at"`
 }
 
 // NewPayload は有効期限を指定して ユーザーのメールアドレスから Payload を生成する
-func NewPayload(employeeID string, duration time.Duration) (*Payload, error) {
+func NewPayload(employeeID string, isAdmin bool, duration time.Duration) (*Payload, error) {
 	tokenID, err := uuid.NewRandom()
 	if err != nil {
 		return nil, err
@@ -28,6 +29,7 @@ func NewPayload(employeeID string, duration time.Duration) (*Payload, error) {
 	payload := &Payload{
 		ID:         tokenID,
 		EmployeeID: employeeID,
+		IsAdmin:    isAdmin,
 		IssuedAt:   time.Now(),
 		ExpiredAt:  time.Now().Add(duration),
 	}

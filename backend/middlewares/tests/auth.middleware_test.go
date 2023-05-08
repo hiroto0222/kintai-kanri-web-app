@@ -24,7 +24,7 @@ func TestAuthMiddleware(t *testing.T) {
 		{
 			name: "OK",
 			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
-				testutils.AddAuthorization(t, request, tokenMaker, middlewares.AuthorizationTypeBearer, "asdasdasdq", time.Minute)
+				testutils.AddAuthorization(t, request, tokenMaker, middlewares.AuthorizationTypeBearer, "asdasdasdq", false, time.Minute)
 			},
 			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusOK, recorder.Code)

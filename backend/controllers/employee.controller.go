@@ -48,6 +48,14 @@ func (c *EmployeeController) GetEmployee(ctx *gin.Context) {
 		return
 	}
 
+	// 取得するユーザーがログインしているユーザー・管理者でない場合はエラーを返す
+	authPayload := ctx.MustGet(middlewares.AuthorizationPayloadKey).(*token.Payload)
+	if employee_id.String() != authPayload.EmployeeID && !authPayload.IsAdmin {
+		err := errors.New("you do not have permission")
+		ctx.JSON(http.StatusUnauthorized, utils.ErrorResponse(err))
+		return
+	}
+
 	// employee_id から従業員情報を取得
 	employee, err := c.store.GetEmployeeById(ctx, employee_id)
 	if err != nil {
@@ -56,31 +64,6 @@ func (c *EmployeeController) GetEmployee(ctx *gin.Context) {
 			return
 		}
 		ctx.JSON(http.StatusInternalServerError, utils.ErrorResponse(err))
-		return
-	}
-
-	authPayload := ctx.MustGet(middlewares.AuthorizationPayloadKey).(*token.Payload)
-
-	// req ユーザーが Admin か確認する
-	reqEmployeeId, err := uuid.Parse(authPayload.EmployeeID)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, utils.ErrorResponse(err))
-		return
-	}
-	reqEmployee, err := c.store.GetEmployeeById(ctx, reqEmployeeId)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			ctx.JSON(http.StatusNotFound, utils.ErrorResponse(err))
-			return
-		}
-		ctx.JSON(http.StatusInternalServerError, utils.ErrorResponse(err))
-		return
-	}
-
-	// 取得するユーザーがログインしているユーザー・管理者でない場合はエラーを返す
-	if employee.ID.String() != authPayload.EmployeeID && !reqEmployee.IsAdmin {
-		err := errors.New("you do not have permission")
-		ctx.JSON(http.StatusUnauthorized, utils.ErrorResponse(err))
 		return
 	}
 
@@ -103,25 +86,9 @@ func (c *EmployeeController) ListEmployees(ctx *gin.Context) {
 		return
 	}
 
+	// Admin でない場合はエラーを返す
 	authPayload := ctx.MustGet(middlewares.AuthorizationPayloadKey).(*token.Payload)
-
-	// req ユーザーが Admin か確認する
-	reqEmployeeId, err := uuid.Parse(authPayload.EmployeeID)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, utils.ErrorResponse(err))
-		return
-	}
-	reqEmployee, err := c.store.GetEmployeeById(ctx, reqEmployeeId)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			ctx.JSON(http.StatusNotFound, utils.ErrorResponse(err))
-			return
-		}
-		ctx.JSON(http.StatusInternalServerError, utils.ErrorResponse(err))
-		return
-	}
-
-	if !reqEmployee.IsAdmin {
+	if !authPayload.IsAdmin {
 		err := errors.New("you do not have permission")
 		ctx.JSON(http.StatusUnauthorized, utils.ErrorResponse(err))
 		return

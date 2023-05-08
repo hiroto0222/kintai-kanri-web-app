@@ -79,9 +79,10 @@ func AddAuthorization(
 	tokenMaker token.Maker,
 	authorizationType string,
 	employeeID string,
+	isAdmin bool,
 	duration time.Duration,
 ) {
-	token, payload, err := tokenMaker.CreateToken(employeeID, duration)
+	token, payload, err := tokenMaker.CreateToken(employeeID, isAdmin, duration)
 	require.NoError(t, err)
 	require.NotEmpty(t, payload)
 

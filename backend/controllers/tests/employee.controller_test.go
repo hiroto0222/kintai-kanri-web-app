@@ -36,12 +36,12 @@ func TestGetEmployee(t *testing.T) {
 			name:       "OK (自分は自分を取得できる)",
 			employeeID: employee.ID.String(),
 			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
-				testutils.AddAuthorization(t, request, tokenMaker, middlewares.AuthorizationTypeBearer, employee.ID.String(), time.Minute)
+				testutils.AddAuthorization(t, request, tokenMaker, middlewares.AuthorizationTypeBearer, employee.ID.String(), employee.IsAdmin, time.Minute)
 			},
 			buildStubs: func(store *mockdb.MockStore) {
 				store.EXPECT().
 					GetEmployeeById(gomock.Any(), gomock.Eq(employee.ID)).
-					Times(2).
+					Times(1).
 					Return(employee, nil)
 			},
 			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
@@ -53,17 +53,13 @@ func TestGetEmployee(t *testing.T) {
 			name:       "OK (Adminは他人を取得できる)",
 			employeeID: employee.ID.String(),
 			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
-				testutils.AddAuthorization(t, request, tokenMaker, middlewares.AuthorizationTypeBearer, adminEmployee.ID.String(), time.Minute)
+				testutils.AddAuthorization(t, request, tokenMaker, middlewares.AuthorizationTypeBearer, adminEmployee.ID.String(), adminEmployee.IsAdmin, time.Minute)
 			},
 			buildStubs: func(store *mockdb.MockStore) {
 				store.EXPECT().
 					GetEmployeeById(gomock.Any(), gomock.Eq(employee.ID)).
 					Times(1).
 					Return(employee, nil)
-				store.EXPECT().
-					GetEmployeeById(gomock.Any(), gomock.Eq(adminEmployee.ID)).
-					Times(1).
-					Return(adminEmployee, nil)
 			},
 			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusOK, recorder.Code)
@@ -74,17 +70,12 @@ func TestGetEmployee(t *testing.T) {
 			name:       "UnAuthorized (他人は他人を取得できない)",
 			employeeID: adminEmployee.ID.String(),
 			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
-				testutils.AddAuthorization(t, request, tokenMaker, middlewares.AuthorizationTypeBearer, employee.ID.String(), time.Minute)
+				testutils.AddAuthorization(t, request, tokenMaker, middlewares.AuthorizationTypeBearer, employee.ID.String(), employee.IsAdmin, time.Minute)
 			},
 			buildStubs: func(store *mockdb.MockStore) {
 				store.EXPECT().
-					GetEmployeeById(gomock.Any(), gomock.Eq(employee.ID)).
-					Times(1).
-					Return(employee, nil)
-				store.EXPECT().
 					GetEmployeeById(gomock.Any(), gomock.Eq(adminEmployee.ID)).
-					Times(1).
-					Return(adminEmployee, nil)
+					Times(0)
 			},
 			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusUnauthorized, recorder.Code)
@@ -152,17 +143,13 @@ func TestListEmployees(t *testing.T) {
 				pageSize: n,
 			},
 			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
-				testutils.AddAuthorization(t, request, tokenMaker, middlewares.AuthorizationTypeBearer, adminEmployee.ID.String(), time.Minute)
+				testutils.AddAuthorization(t, request, tokenMaker, middlewares.AuthorizationTypeBearer, adminEmployee.ID.String(), adminEmployee.IsAdmin, time.Minute)
 			},
 			buildStubs: func(store *mockdb.MockStore) {
 				arg := db.ListEmployeesParams{
 					Limit:  int32(n),
 					Offset: 0,
 				}
-				store.EXPECT().
-					GetEmployeeById(gomock.Any(), gomock.Eq(adminEmployee.ID)).
-					Times(1).
-					Return(adminEmployee, nil)
 				store.EXPECT().
 					ListEmployees(gomock.Any(), gomock.Eq(arg)).
 					Times(1).
@@ -180,13 +167,9 @@ func TestListEmployees(t *testing.T) {
 				pageSize: n,
 			},
 			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
-				testutils.AddAuthorization(t, request, tokenMaker, middlewares.AuthorizationTypeBearer, employee.ID.String(), time.Minute)
+				testutils.AddAuthorization(t, request, tokenMaker, middlewares.AuthorizationTypeBearer, employee.ID.String(), employee.IsAdmin, time.Minute)
 			},
 			buildStubs: func(store *mockdb.MockStore) {
-				store.EXPECT().
-					GetEmployeeById(gomock.Any(), gomock.Eq(employee.ID)).
-					Times(1).
-					Return(employee, nil)
 			},
 			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusUnauthorized, recorder.Code)

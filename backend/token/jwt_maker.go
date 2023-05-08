@@ -25,8 +25,8 @@ func NewJWTMaker(secretKey string) (Maker, error) {
 }
 
 // CreateToken は JWT トークンをユーザーのメールアドレスで生成する
-func (maker *JWTMaker) CreateToken(employeeID string, duration time.Duration) (string, *Payload, error) {
-	payload, err := NewPayload(employeeID, duration)
+func (maker *JWTMaker) CreateToken(employeeID string, isAdmin bool, duration time.Duration) (string, *Payload, error) {
+	payload, err := NewPayload(employeeID, isAdmin, duration)
 	if err != nil {
 		return "", payload, err
 	}
