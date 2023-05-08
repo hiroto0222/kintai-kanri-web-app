@@ -17,4 +17,5 @@ func (rc *AuthRoutes) AuthRoute(rg *gin.RouterGroup) {
 	router := rg.Group("/auth")
 	router.POST("/register", rc.authController.RegisterEmployee)
 	router.POST("/login", rc.authController.LogInEmployee)
+	router.POST("/refresh", rc.authController.RefreshAccessToken)
 }
