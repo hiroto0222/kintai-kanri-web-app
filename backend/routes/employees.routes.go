@@ -16,5 +16,6 @@ func NewEmployeeRoutes(employeeController controllers.EmployeeController) Employ
 
 func (rc *EmployeeRoutes) EmployeeRoute(rg *gin.RouterGroup) {
 	router := rg.Group("/employees").Use(middlewares.AuthMiddleware(rc.employeeController.TokenMaker))
+	router.GET("/", rc.employeeController.ListEmployees)
 	router.GET("/:id", rc.employeeController.GetEmployee)
 }
