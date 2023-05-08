@@ -29,7 +29,7 @@ func NewEmployeeController(config config.Config, store db.Store, tokenMaker toke
 }
 
 type getEmployeeRequest struct {
-	ID uuid.UUID `uri:"id" binding:"required,min=1"`
+	ID string `uri:"id" binding:"required,min=1"`
 }
 
 // GetEmployee: api/employees/:id 従業員情報取得
@@ -41,7 +41,14 @@ func (c *EmployeeController) GetEmployee(ctx *gin.Context) {
 		return
 	}
 
-	employee, err := c.store.GetEmployeeById(ctx, req.ID)
+	// 文字列で渡された employee_id をUUIDに変換
+	employee_id, err := uuid.Parse(req.ID)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, utils.ErrorResponse(err))
+		return
+	}
+
+	employee, err := c.store.GetEmployeeById(ctx, employee_id)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			ctx.JSON(http.StatusNotFound, utils.ErrorResponse(err))
