@@ -13,6 +13,7 @@ import (
 
 func NewTestServer(t *testing.T, store db.Store) *server.Server {
 	config := config.Config{
+		Origin:              "*", // テスト時は CORS を無効にする
 		TokenSymmetricKey:   utils.RandomString(32),
 		AccessTokenDuration: time.Minute,
 	}
