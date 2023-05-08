@@ -3,6 +3,7 @@ package routes
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/hiroto0222/kintai-kanri-web-app/controllers"
+	"github.com/hiroto0222/kintai-kanri-web-app/middlewares"
 )
 
 type AuthRoutes struct {
@@ -15,7 +16,13 @@ func NewAuthRoutes(authController controllers.AuthController) AuthRoutes {
 
 func (rc *AuthRoutes) AuthRoute(rg *gin.RouterGroup) {
 	router := rg.Group("/auth")
-	router.POST("/register", rc.authController.RegisterEmployee)
-	router.POST("/login", rc.authController.LogInEmployee)
+
+	router.POST(
+		"/register",
+		middlewares.AuthMiddleware(rc.authController.TokenMaker),
+		rc.authController.RegisterEmployee,
+	)
+
 	router.POST("/refresh", rc.authController.RefreshAccessToken)
+	router.POST("/login", rc.authController.LogInEmployee)
 }
