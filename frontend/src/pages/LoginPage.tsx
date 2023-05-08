@@ -1,10 +1,10 @@
 import { Button, Container, Stack, TextField, Typography } from "@mui/material";
 import { useState } from "react";
 import { Helmet } from "react-helmet-async";
-import useAuth from "../hooks/useAuth";
+import useAuthApi from "../hooks/api/useAuthApi";
 
 const LoginPage = () => {
-  const { login } = useAuth();
+  const { login } = useAuthApi();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 

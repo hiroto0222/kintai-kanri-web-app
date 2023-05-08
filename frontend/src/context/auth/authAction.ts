@@ -5,6 +5,7 @@ import { UserLoginResponse } from "../../services/auth";
 export enum AuthActionEnum {
   LOG_IN = "LOG_IN",
   LOG_OUT = "LOG_OUT",
+  SET_ACCESS_TOKEN = "SET_ACCESS_TOKEN",
 }
 
 export type AuthAction =
@@ -14,5 +15,8 @@ export type AuthAction =
     }
   | {
       type: AuthActionEnum.LOG_OUT;
-      payload: null;
+    }
+  | {
+      type: AuthActionEnum.SET_ACCESS_TOKEN;
+      payload: string;
     };
