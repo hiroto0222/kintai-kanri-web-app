@@ -3,7 +3,9 @@ package server
 import (
 	"fmt"
 	"net/http"
+	"time"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/hiroto0222/kintai-kanri-web-app/config"
 	"github.com/hiroto0222/kintai-kanri-web-app/controllers"
@@ -51,6 +53,19 @@ func NewServer(config config.Config, store db.Store) (*Server, error) {
 // setupRouter sets up the HTTP router for all api endpoints
 func (server *Server) setupRouter() {
 	router := gin.Default()
+
+	// setup cors
+	router.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{server.Config.Origin},
+		AllowMethods:     []string{"GET", "POST", "OPTIONS", "PUT", "DELETE"},
+		AllowHeaders:     []string{"Content-Type", "Content-Length", "Accept-Encoding", "X-CSRF-Token", "Authorization", "accept", "origin", "Cache-Control", "X-Requested-With"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+		AllowOriginFunc: func(origin string) bool {
+			return true
+		},
+		MaxAge: 15 * time.Second,
+	}))
 
 	apiRoutes := router.Group("/api")
 
