@@ -12,24 +12,24 @@ var ErrInvalidToken = errors.New("token is invalid")
 
 // Payload はやりとりに必要な属性情報（Claim）を持つ JSON 形式のデータ
 type Payload struct {
-	ID        uuid.UUID `json:"id"`
-	Email     string    `json:"email"`
-	IssuedAt  time.Time `json:"issued_at"`
-	ExpiredAt time.Time `json:"expired_at"`
+	ID         uuid.UUID `json:"id"`
+	EmployeeID string    `json:"employee_id"`
+	IssuedAt   time.Time `json:"issued_at"`
+	ExpiredAt  time.Time `json:"expired_at"`
 }
 
 // NewPayload は有効期限を指定して ユーザーのメールアドレスから Payload を生成する
-func NewPayload(email string, duration time.Duration) (*Payload, error) {
+func NewPayload(employeeID string, duration time.Duration) (*Payload, error) {
 	tokenID, err := uuid.NewRandom()
 	if err != nil {
 		return nil, err
 	}
 
 	payload := &Payload{
-		ID:        tokenID,
-		Email:     email,
-		IssuedAt:  time.Now(),
-		ExpiredAt: time.Now().Add(duration),
+		ID:         tokenID,
+		EmployeeID: employeeID,
+		IssuedAt:   time.Now(),
+		ExpiredAt:  time.Now().Add(duration),
 	}
 
 	return payload, nil

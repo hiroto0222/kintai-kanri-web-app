@@ -1,7 +1,6 @@
 package middlewares_test
 
 import (
-	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -25,7 +24,7 @@ func TestAuthMiddleware(t *testing.T) {
 		{
 			name: "OK",
 			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
-				addAuthorization(t, request, tokenMaker, middlewares.AuthorizationTypeBearer, "test@email.com", time.Minute)
+				testutils.AddAuthorization(t, request, tokenMaker, middlewares.AuthorizationTypeBearer, "asdasdasdq", time.Minute)
 			},
 			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusOK, recorder.Code)
@@ -66,21 +65,4 @@ func TestAuthMiddleware(t *testing.T) {
 			tc.checkResponse(t, recorder)
 		})
 	}
-}
-
-// addAuthorization はテストリクエストに authorization header を追加する
-func addAuthorization(
-	t *testing.T,
-	request *http.Request,
-	tokenMaker token.Maker,
-	authorizationType string,
-	email string,
-	duration time.Duration,
-) {
-	token, payload, err := tokenMaker.CreateToken(email, duration)
-	require.NoError(t, err)
-	require.NotEmpty(t, payload)
-
-	authorizationHeader := fmt.Sprintf("%s %s", authorizationType, token)
-	request.Header.Set(middlewares.AuthorizationHeaderKey, authorizationHeader)
 }

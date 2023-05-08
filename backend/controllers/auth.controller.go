@@ -69,7 +69,7 @@ func (ac *AuthController) RegisterEmployee(ctx *gin.Context) {
 		return
 	}
 
-	response := newUserResponse(employee)
+	response := NewUserResponse(employee)
 	ctx.JSON(http.StatusCreated, response)
 }
 
@@ -84,7 +84,7 @@ type logInEmployeeResponse struct {
 	AccessTokenExpiresAt  time.Time        `json:"access_token_expires_at"`
 	RefreshToken          string           `json:"refresh_token"`
 	RefreshTokenExpiresAt time.Time        `json:"refresh_token_expires_at"`
-	User                  employeeResponse `json:"user"`
+	User                  EmployeeResponse `json:"user"`
 }
 
 // LogInEmployee: api/auth/login ユーザー認証
@@ -116,14 +116,14 @@ func (ac *AuthController) LogInEmployee(ctx *gin.Context) {
 	}
 
 	// アクセストークンを作成
-	accessToken, accessPayload, err := ac.tokenMaker.CreateToken(employee.Email, ac.config.AccessTokenDuration)
+	accessToken, accessPayload, err := ac.tokenMaker.CreateToken(employee.ID.String(), ac.config.AccessTokenDuration)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, utils.ErrorResponse(err))
 		return
 	}
 
 	// リフレッシュトークンを作成
-	refreshToken, refreshPayload, err := ac.tokenMaker.CreateToken(employee.Email, ac.config.RefreshTokenDuration)
+	refreshToken, refreshPayload, err := ac.tokenMaker.CreateToken(employee.ID.String(), ac.config.RefreshTokenDuration)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, utils.ErrorResponse(err))
 		return
@@ -148,7 +148,7 @@ func (ac *AuthController) LogInEmployee(ctx *gin.Context) {
 		AccessTokenExpiresAt:  accessPayload.ExpiredAt,
 		RefreshToken:          refreshToken,
 		RefreshTokenExpiresAt: refreshPayload.ExpiredAt,
-		User:                  newUserResponse(employee),
+		User:                  NewUserResponse(employee),
 	}
 
 	ctx.JSON(http.StatusOK, response)
@@ -196,8 +196,7 @@ func (ac *AuthController) RefreshAccessToken(ctx *gin.Context) {
 	}
 
 	// セッションのユーザーとリフレッシュトークンのユーザーが一致するか確認
-	fmt.Println(session.Email, refreshPayload.Email)
-	if session.Email != refreshPayload.Email {
+	if session.EmployeeID.String() != refreshPayload.EmployeeID {
 		err := fmt.Errorf("incorrect session user")
 		ctx.JSON(http.StatusUnauthorized, utils.ErrorResponse(err))
 		return
@@ -217,7 +216,7 @@ func (ac *AuthController) RefreshAccessToken(ctx *gin.Context) {
 		return
 	}
 
-	accessToken, accessPayload, err := ac.tokenMaker.CreateToken(refreshPayload.Email, ac.config.AccessTokenDuration)
+	accessToken, accessPayload, err := ac.tokenMaker.CreateToken(refreshPayload.EmployeeID, ac.config.AccessTokenDuration)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, utils.ErrorResponse(err))
 		return
@@ -231,7 +230,7 @@ func (ac *AuthController) RefreshAccessToken(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, response)
 }
 
-type employeeResponse struct {
+type EmployeeResponse struct {
 	ID        uuid.UUID     `json:"id"`
 	FirstName string        `json:"first_name"`
 	LastName  string        `json:"last_name"`
@@ -243,8 +242,8 @@ type employeeResponse struct {
 	CreatedAt time.Time     `json:"created_at"`
 }
 
-func newUserResponse(employee db.Employee) employeeResponse {
-	return employeeResponse{
+func NewUserResponse(employee db.Employee) EmployeeResponse {
+	return EmployeeResponse{
 		ID:        employee.ID,
 		FirstName: employee.FirstName,
 		LastName:  employee.LastName,
