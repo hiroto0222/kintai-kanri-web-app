@@ -8,6 +8,7 @@ import {
 import { useMemo } from "react";
 import customShadows from "./customShadows";
 import GlobalStyles from "./globalStyles";
+import componentsOverrides from "./overrides";
 import palette from "./pallete";
 import shadows from "./shadows";
 import typography from "./typography";
@@ -29,6 +30,7 @@ const ThemeProvider: React.FC<Props> = ({ children }) => {
   );
 
   const theme = createTheme(themeOptions);
+  theme.components = componentsOverrides(theme);
 
   return (
     <StyledEngineProvider injectFirst>

@@ -6,3 +6,9 @@ declare module "@mui/material/styles" {
     customShadows: customShadows; // optional
   }
 }
+
+declare module "@mui/material/styles/createPalette" {
+  interface TypeBackground {
+    neutral: string;
+  }
+}
