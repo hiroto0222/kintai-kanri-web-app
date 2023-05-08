@@ -9,6 +9,7 @@ import (
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
+	uuid "github.com/google/uuid"
 	db "github.com/hiroto0222/kintai-kanri-web-app/db/sqlc"
 )
 
@@ -66,7 +67,7 @@ func (mr *MockStoreMockRecorder) CreateRole(arg0, arg1 interface{}) *gomock.Call
 }
 
 // DeleteEmployee mocks base method.
-func (m *MockStore) DeleteEmployee(arg0 context.Context, arg1 int32) error {
+func (m *MockStore) DeleteEmployee(arg0 context.Context, arg1 uuid.UUID) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DeleteEmployee", arg0, arg1)
 	ret0, _ := ret[0].(error)
@@ -109,7 +110,7 @@ func (mr *MockStoreMockRecorder) GetEmployeeByEmail(arg0, arg1 interface{}) *gom
 }
 
 // GetEmployeeById mocks base method.
-func (m *MockStore) GetEmployeeById(arg0 context.Context, arg1 int32) (db.Employee, error) {
+func (m *MockStore) GetEmployeeById(arg0 context.Context, arg1 uuid.UUID) (db.Employee, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetEmployeeById", arg0, arg1)
 	ret0, _ := ret[0].(db.Employee)

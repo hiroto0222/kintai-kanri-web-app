@@ -2,6 +2,7 @@ package testutils
 
 import (
 	"bytes"
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -27,7 +28,10 @@ func CreateTestEmployee(t *testing.T, role db.Role) (db.Employee, string) {
 		Phone:          "090-1234-5678",
 		Address:        "Tokyo",
 		HashedPassword: hashedPassword,
-		RoleID:         role.ID,
+		RoleID: sql.NullInt32{
+			Int32: role.ID,
+			Valid: true,
+		},
 	}, password
 }
 

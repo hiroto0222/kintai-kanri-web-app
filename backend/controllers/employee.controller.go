@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/hiroto0222/kintai-kanri-web-app/config"
 	db "github.com/hiroto0222/kintai-kanri-web-app/db/sqlc"
 	"github.com/hiroto0222/kintai-kanri-web-app/middlewares"
@@ -28,7 +29,7 @@ func NewEmployeeController(config config.Config, store db.Store, tokenMaker toke
 }
 
 type getEmployeeRequest struct {
-	ID int32 `uri:"id" binding:"required,min=1"`
+	ID uuid.UUID `uri:"id" binding:"required,min=1"`
 }
 
 // GetEmployee: api/employees/:id 従業員情報取得

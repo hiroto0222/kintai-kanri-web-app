@@ -2,6 +2,7 @@ package db_test
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"testing"
 
@@ -18,7 +19,10 @@ func TestCreateEmployee(t *testing.T) {
 		Email:     "test@email.com",
 		Phone:     "090-1234-5678",
 		Address:   "東京都千代田区",
-		RoleID:    role.ID,
+		RoleID: sql.NullInt32{
+			Int32: role.ID,
+			Valid: true,
+		},
 	})
 }
 
@@ -31,7 +35,10 @@ func TestGetEmployeeByID(t *testing.T) {
 		Email:     "test@email.com",
 		Phone:     "090-1234-5678",
 		Address:   "東京都千代田区",
-		RoleID:    role.ID,
+		RoleID: sql.NullInt32{
+			Int32: role.ID,
+			Valid: true,
+		},
 	})
 
 	employee2, err := testQueries.GetEmployeeById(context.Background(), employee1.ID)
@@ -50,7 +57,10 @@ func TestListEmployees(t *testing.T) {
 			Email:     fmt.Sprintf("test{%v}@email.com", i),
 			Phone:     fmt.Sprintf("090-1234-567{%v}", i),
 			Address:   "東京都千代田区",
-			RoleID:    role.ID,
+			RoleID: sql.NullInt32{
+				Int32: role.ID,
+				Valid: true,
+			},
 		})
 	}
 

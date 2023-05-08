@@ -3,6 +3,9 @@ FROM golang:1.20-alpine3.17
 WORKDIR /app
 COPY . /app
 
+# add uuid to postgresql
+ENV POSTGRES_EXTENSIONS=uuid-ossp
+
 # go get で git を使うため追加
 RUN apk upgrade --update && \
   apk --no-cache add git && \

@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/hiroto0222/kintai-kanri-web-app/config"
 	db "github.com/hiroto0222/kintai-kanri-web-app/db/sqlc"
 	"github.com/hiroto0222/kintai-kanri-web-app/token"
@@ -24,14 +25,14 @@ func NewAuthController(config config.Config, store db.Store, tokenMaker token.Ma
 }
 
 type registerEmployeeRequest struct {
-	FirstName string `json:"first_name" binding:"required"`
-	LastName  string `json:"last_name" binding:"required"`
-	Email     string `json:"email" binding:"required,email"`
-	Phone     string `json:"phone" binding:"required"`
-	Address   string `json:"address" binding:"required"`
-	RoleID    int32  `json:"role_id" binding:"required"`
-	IsAdmin   bool   `json:"is_admin"`
-	Password  string `json:"password" binding:"required,min=6"`
+	FirstName string        `json:"first_name" binding:"required"`
+	LastName  string        `json:"last_name" binding:"required"`
+	Email     string        `json:"email" binding:"required,email"`
+	Phone     string        `json:"phone" binding:"required"`
+	Address   string        `json:"address" binding:"required"`
+	RoleID    sql.NullInt32 `json:"role_id"`
+	IsAdmin   bool          `json:"is_admin"`
+	Password  string        `json:"password" binding:"required,min=6"`
 }
 
 // RegisterEmployee: api/auth/register ユーザー登録
@@ -124,15 +125,15 @@ func (ac *AuthController) LogInEmployee(ctx *gin.Context) {
 }
 
 type employeeResponse struct {
-	ID        int32     `json:"id"`
-	FirstName string    `json:"first_name"`
-	LastName  string    `json:"last_name"`
-	Email     string    `json:"email"`
-	Phone     string    `json:"phone"`
-	Address   string    `json:"address"`
-	RoleID    int32     `json:"role_id"`
-	IsAdmin   bool      `json:"is_admin"`
-	CreatedAt time.Time `json:"created_at"`
+	ID        uuid.UUID     `json:"id"`
+	FirstName string        `json:"first_name"`
+	LastName  string        `json:"last_name"`
+	Email     string        `json:"email"`
+	Phone     string        `json:"phone"`
+	Address   string        `json:"address"`
+	RoleID    sql.NullInt32 `json:"role_id"`
+	IsAdmin   bool          `json:"is_admin"`
+	CreatedAt time.Time     `json:"created_at"`
 }
 
 func newUserResponse(employee db.Employee) employeeResponse {
