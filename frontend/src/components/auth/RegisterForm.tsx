@@ -127,7 +127,7 @@ const RegisterForm: React.FC<Props> = ({ control }) => {
   return (
     <Grid container spacing={2} marginY={2}>
       {registerFormData.map((item) => (
-        <Grid item {...item.itemProps}>
+        <Grid item {...item.itemProps} key={item.label}>
           <Controller
             name={item.name}
             defaultValue={item.defaultValue}
