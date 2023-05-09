@@ -29,6 +29,7 @@ services:
     container_name: postgres
     environment:
       POSTGRES_EXTENSIONS: uuid-ossp
+      TZ: "Asia/Tokyo"
     ports:
       - 5432:5432
     volumes:
