@@ -44,6 +44,10 @@ func TestCreateClockIn(t *testing.T) {
 					CreateClockIn(gomock.Any(), gomock.Eq(employee.ID)).
 					Times(1).
 					Return(clockin, nil)
+				store.EXPECT().
+					GetMostRecentClockIn(gomock.Any(), gomock.Eq(employee.ID)).
+					Times(1).
+					Return(db.ClockIn{}, nil)
 			},
 			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusCreated, recorder.Code)
@@ -65,6 +69,61 @@ func TestCreateClockIn(t *testing.T) {
 			},
 			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusUnauthorized, recorder.Code)
+			},
+		},
+		{
+			name: "BadRequest, 退出打刻せずにまた出勤打刻した場合",
+			body: gin.H{
+				"employee_id": employee.ID.String(),
+			},
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				testutils.AddAuthorization(t, request, tokenMaker, middlewares.AuthorizationTypeBearer, employee.ID.String(), employee.IsAdmin, time.Minute)
+			},
+			buildStubs: func(store *mockdb.MockStore) {
+				store.EXPECT().
+					CreateClockIn(gomock.Any(), gomock.Eq(employee.ID)).
+					Times(0)
+				store.EXPECT().
+					GetMostRecentClockIn(gomock.Any(), gomock.Eq(employee.ID)).
+					Times(1).
+					// 退出打刻していない状態
+					Return(db.ClockIn{
+						ID:          1,
+						EmployeeID:  employee.ID,
+						ClockInTime: time.Now(),
+						ClockedOut:  false,
+					}, nil)
+			},
+			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusBadRequest, recorder.Code)
+			},
+		},
+		{
+			name: "OK, 退出打刻していて出勤打刻した場合",
+			body: gin.H{
+				"employee_id": employee.ID.String(),
+			},
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				testutils.AddAuthorization(t, request, tokenMaker, middlewares.AuthorizationTypeBearer, employee.ID.String(), employee.IsAdmin, time.Minute)
+			},
+			buildStubs: func(store *mockdb.MockStore) {
+				store.EXPECT().
+					CreateClockIn(gomock.Any(), gomock.Eq(employee.ID)).
+					Times(1).
+					Return(clockin, nil)
+				store.EXPECT().
+					GetMostRecentClockIn(gomock.Any(), gomock.Eq(employee.ID)).
+					Times(1).
+					Return(db.ClockIn{
+						ID:          1,
+						EmployeeID:  employee.ID,
+						ClockInTime: time.Now(),
+						ClockedOut:  true,
+					}, nil)
+			},
+			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusCreated, recorder.Code)
+				requireBodyMatchClockIn(t, recorder.Body, clockin)
 			},
 		},
 	}
