@@ -17,13 +17,18 @@ INSERT INTO "ClockIns" (
 ) VALUES (
   $1
 )
-RETURNING id, employee_id, clock_in_time
+RETURNING id, employee_id, clocked_out, clock_in_time
 `
 
 func (q *Queries) CreateClockIn(ctx context.Context, employeeID uuid.UUID) (ClockIn, error) {
 	row := q.db.QueryRowContext(ctx, createClockIn, employeeID)
 	var i ClockIn
-	err := row.Scan(&i.ID, &i.EmployeeID, &i.ClockInTime)
+	err := row.Scan(
+		&i.ID,
+		&i.EmployeeID,
+		&i.ClockedOut,
+		&i.ClockInTime,
+	)
 	return i, err
 }
 
@@ -38,19 +43,24 @@ func (q *Queries) DeleteClockIn(ctx context.Context, id int32) error {
 }
 
 const getClockIn = `-- name: GetClockIn :one
-SELECT id, employee_id, clock_in_time FROM "ClockIns"
+SELECT id, employee_id, clocked_out, clock_in_time FROM "ClockIns"
 WHERE "id" = $1
 `
 
 func (q *Queries) GetClockIn(ctx context.Context, id int32) (ClockIn, error) {
 	row := q.db.QueryRowContext(ctx, getClockIn, id)
 	var i ClockIn
-	err := row.Scan(&i.ID, &i.EmployeeID, &i.ClockInTime)
+	err := row.Scan(
+		&i.ID,
+		&i.EmployeeID,
+		&i.ClockedOut,
+		&i.ClockInTime,
+	)
 	return i, err
 }
 
 const getMostRecentClockIn = `-- name: GetMostRecentClockIn :one
-SELECT id, employee_id, clock_in_time FROM "ClockIns"
+SELECT id, employee_id, clocked_out, clock_in_time FROM "ClockIns"
 WHERE "employee_id" = $1
 ORDER BY "clock_in_time" DESC
 LIMIT 1
@@ -59,12 +69,17 @@ LIMIT 1
 func (q *Queries) GetMostRecentClockIn(ctx context.Context, employeeID uuid.UUID) (ClockIn, error) {
 	row := q.db.QueryRowContext(ctx, getMostRecentClockIn, employeeID)
 	var i ClockIn
-	err := row.Scan(&i.ID, &i.EmployeeID, &i.ClockInTime)
+	err := row.Scan(
+		&i.ID,
+		&i.EmployeeID,
+		&i.ClockedOut,
+		&i.ClockInTime,
+	)
 	return i, err
 }
 
 const listClockIns = `-- name: ListClockIns :many
-SELECT id, employee_id, clock_in_time FROM "ClockIns"
+SELECT id, employee_id, clocked_out, clock_in_time FROM "ClockIns"
 WHERE "employee_id" = $1
 `
 
@@ -77,7 +92,12 @@ func (q *Queries) ListClockIns(ctx context.Context, employeeID uuid.UUID) ([]Clo
 	var items []ClockIn
 	for rows.Next() {
 		var i ClockIn
-		if err := rows.Scan(&i.ID, &i.EmployeeID, &i.ClockInTime); err != nil {
+		if err := rows.Scan(
+			&i.ID,
+			&i.EmployeeID,
+			&i.ClockedOut,
+			&i.ClockInTime,
+		); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
