@@ -3,6 +3,7 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import { authContext } from "./context/auth";
 import LoginPage from "./pages/LoginPage";
 import MyPage from "./pages/MyPage";
+import RegisterPage from "./pages/RegisterPage";
 
 const App = () => {
   const { authState } = useContext(authContext);
@@ -17,6 +18,16 @@ const App = () => {
         <Route
           path="/me"
           element={authState.isLoggedIn ? <MyPage /> : <Navigate to="/" />}
+        />
+        <Route
+          path="/register"
+          element={
+            authState.isLoggedIn && authState.user?.is_admin ? (
+              <RegisterPage />
+            ) : (
+              <Navigate to="/" />
+            )
+          }
         />
       </Routes>
     </div>

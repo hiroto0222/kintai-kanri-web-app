@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"net/http"
 	"time"
@@ -10,6 +11,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/hiroto0222/kintai-kanri-web-app/config"
 	db "github.com/hiroto0222/kintai-kanri-web-app/db/sqlc"
+	"github.com/hiroto0222/kintai-kanri-web-app/middlewares"
 	"github.com/hiroto0222/kintai-kanri-web-app/token"
 	"github.com/hiroto0222/kintai-kanri-web-app/utils"
 )
@@ -17,7 +19,7 @@ import (
 // TODO: Refactor
 type AuthController struct {
 	config     config.Config
-	tokenMaker token.Maker
+	TokenMaker token.Maker
 	store      db.Store
 }
 
@@ -43,6 +45,14 @@ func (ac *AuthController) RegisterEmployee(ctx *gin.Context) {
 	// application/jsonでレスポンスを返したいため、ShouldBindJSON
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, utils.ErrorResponse(err))
+		return
+	}
+
+	// 取得するユーザーがログインしているユーザー・管理者でない場合はエラーを返す
+	authPayload := ctx.MustGet(middlewares.AuthorizationPayloadKey).(*token.Payload)
+	if !authPayload.IsAdmin {
+		err := errors.New("you do not have permission")
+		ctx.JSON(http.StatusUnauthorized, utils.ErrorResponse(err))
 		return
 	}
 
@@ -116,14 +126,14 @@ func (ac *AuthController) LogInEmployee(ctx *gin.Context) {
 	}
 
 	// アクセストークンを作成
-	accessToken, accessPayload, err := ac.tokenMaker.CreateToken(employee.ID.String(), employee.IsAdmin, ac.config.AccessTokenDuration)
+	accessToken, accessPayload, err := ac.TokenMaker.CreateToken(employee.ID.String(), employee.IsAdmin, ac.config.AccessTokenDuration)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, utils.ErrorResponse(err))
 		return
 	}
 
 	// リフレッシュトークンを作成
-	refreshToken, refreshPayload, err := ac.tokenMaker.CreateToken(employee.ID.String(), employee.IsAdmin, ac.config.RefreshTokenDuration)
+	refreshToken, refreshPayload, err := ac.TokenMaker.CreateToken(employee.ID.String(), employee.IsAdmin, ac.config.RefreshTokenDuration)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, utils.ErrorResponse(err))
 		return
@@ -171,7 +181,7 @@ func (ac *AuthController) RefreshAccessToken(ctx *gin.Context) {
 	}
 
 	// リフレッシュトークンを検証
-	refreshPayload, err := ac.tokenMaker.VerifyToken(req.RefreshToken)
+	refreshPayload, err := ac.TokenMaker.VerifyToken(req.RefreshToken)
 	if err != nil {
 		ctx.JSON(http.StatusUnauthorized, utils.ErrorResponse(err))
 		return
@@ -216,7 +226,7 @@ func (ac *AuthController) RefreshAccessToken(ctx *gin.Context) {
 		return
 	}
 
-	accessToken, accessPayload, err := ac.tokenMaker.CreateToken(refreshPayload.EmployeeID, refreshPayload.IsAdmin, ac.config.AccessTokenDuration)
+	accessToken, accessPayload, err := ac.TokenMaker.CreateToken(refreshPayload.EmployeeID, refreshPayload.IsAdmin, ac.config.AccessTokenDuration)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, utils.ErrorResponse(err))
 		return
