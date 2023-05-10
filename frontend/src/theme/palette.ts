@@ -1,5 +1,37 @@
 import { alpha } from "@mui/material/styles";
 
+export type customPalette = {
+  common: { black: string; white: string };
+  primary: typeof PRIMARY;
+  secondary: typeof SECONDARY;
+  info: typeof INFO;
+  success: typeof SUCCESS;
+  warning: typeof WARNING;
+  error: typeof ERROR;
+  grey: typeof GREY;
+  divider: string;
+  text: {
+    primary: string;
+    secondary: string;
+    disabled: string;
+  };
+  background: {
+    paper: string;
+    default: string;
+    neutral: string;
+  };
+  action: {
+    active: string;
+    hover: string;
+    selected: string;
+    disabled: string;
+    disabledBackground: string;
+    focus: string;
+    hoverOpacity: number;
+    disabledOpacity: number;
+  };
+};
+
 // SETUP COLORS
 const GREY = {
   0: "#FFFFFF",
@@ -68,7 +100,7 @@ const ERROR = {
   contrastText: "#fff",
 };
 
-const palette = {
+const palette: customPalette = {
   common: { black: "#000", white: "#fff" },
   primary: PRIMARY,
   secondary: SECONDARY,
