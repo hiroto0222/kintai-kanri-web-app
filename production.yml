@@ -1,0 +1,25 @@
+version: "3"
+services:
+  backend:
+    container_name: prod-backend
+    environment:
+      - GIN_MODE=release
+    build:
+      context: ./backend
+      dockerfile: ../compose/production/backend/Dockerfile
+    ports:
+      - 8080:8080
+    depends_on:
+      - db
+    entrypoint:
+      ["/app/wait-for.sh", "prod-postgres:5432", "--", "/app/start.sh"]
+    command: ["/app/main"]
+
+  db:
+    image: postgres:13
+    container_name: prod-postgres
+    environment:
+      POSTGRES_EXTENSIONS: uuid-ossp
+      TZ: "Asia/Tokyo"
+    ports:
+      - 5432:5432
