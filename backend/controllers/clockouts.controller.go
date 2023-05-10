@@ -14,27 +14,27 @@ import (
 	"github.com/hiroto0222/kintai-kanri-web-app/utils"
 )
 
-type ClockInController struct {
+type ClockOutController struct {
 	config     config.Config
 	TokenMaker token.Maker
 	store      db.Store
 }
 
-func NewClockInController(config config.Config, store db.Store, tokenMaker token.Maker) *ClockInController {
-	return &ClockInController{
+func NewClockOutController(config config.Config, store db.Store, tokenMaker token.Maker) *ClockOutController {
+	return &ClockOutController{
 		config:     config,
 		store:      store,
 		TokenMaker: tokenMaker,
 	}
 }
 
-type reqCreateClockIn struct {
+type reqCreateClockOut struct {
 	EmployeeID string `json:"employee_id" binding:"required"`
 }
 
-// POST: api/clockins 出勤打刻
-func (c *ClockInController) CreateClockIn(ctx *gin.Context) {
-	var req reqCreateClockIn
+// POST: api/clockouts 退出打刻
+func (c *ClockOutController) CreateClockOut(ctx *gin.Context) {
+	var req reqCreateClockOut
 
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, utils.ErrorResponse(err))
@@ -60,18 +60,24 @@ func (c *ClockInController) CreateClockIn(ctx *gin.Context) {
 		return
 	}
 
-	// 退出打刻しないまま出勤打刻している場合はエラー
-	if prevClockIn != (db.ClockIn{}) && !prevClockIn.ClockedOut {
-		err := errors.New("you have not clocked out yet")
+	// 出勤打刻していない場合はエラー
+	if prevClockIn == (db.ClockIn{}) || prevClockIn.ClockedOut {
+		err := errors.New("you have not clocked in yet")
 		ctx.JSON(http.StatusBadRequest, utils.ErrorResponse(err))
 		return
 	}
 
-	clockIn, err := c.store.CreateClockIn(ctx, reqEmployeeID)
+	arg := db.ClockOutTxParams{
+		EmployeeID: reqEmployeeID,
+		ClockInID:  prevClockIn.ID,
+	}
+
+	// clockout transaction
+	result, err := c.store.ClockOutTx(ctx, arg)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, utils.ErrorResponse(err))
 		return
 	}
 
-	ctx.JSON(http.StatusCreated, clockIn)
+	ctx.JSON(http.StatusCreated, result)
 }

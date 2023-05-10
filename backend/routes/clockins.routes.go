@@ -17,5 +17,5 @@ func NewClockInRoutes(clockInController controllers.ClockInController) ClockInRo
 func (c *ClockInRoutes) ClockInRoute(rg *gin.RouterGroup) {
 	router := rg.Group("/clockins").Use(middlewares.AuthMiddleware(c.clockInController.TokenMaker))
 
-	router.POST("/", c.clockInController.CreateClockIn)
+	router.POST("", c.clockInController.CreateClockIn)
 }
