@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"time"
 
-	_ "github.com/hiroto0222/kintai-kanri-web-app/docs" // swagger docs
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 
@@ -77,7 +76,6 @@ func (server *Server) setupRouter() {
 
 	apiRoutes := router.Group("/api")
 
-	// swagger docs
 	apiRoutes.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	apiRoutes.GET("/healthchecker", func(ctx *gin.Context) {

@@ -37,14 +37,14 @@ func (c *EmployeeController) GetEmployee(ctx *gin.Context) {
 	var req getEmployeeRequest
 	// ShouldBindUri はリクエストのURIからパラメータを取得
 	if err := ctx.ShouldBindUri(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, utils.ErrorResponse(err))
+		ctx.JSON(http.StatusBadRequest, utils.CreateErrorResponse(err))
 		return
 	}
 
 	// 文字列で渡された employee_id をUUIDに変換
 	employee_id, err := uuid.Parse(req.ID)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, utils.ErrorResponse(err))
+		ctx.JSON(http.StatusBadRequest, utils.CreateErrorResponse(err))
 		return
 	}
 
@@ -52,7 +52,7 @@ func (c *EmployeeController) GetEmployee(ctx *gin.Context) {
 	authPayload := ctx.MustGet(middlewares.AuthorizationPayloadKey).(*token.Payload)
 	if employee_id.String() != authPayload.EmployeeID && !authPayload.IsAdmin {
 		err := errors.New("you do not have permission")
-		ctx.JSON(http.StatusUnauthorized, utils.ErrorResponse(err))
+		ctx.JSON(http.StatusUnauthorized, utils.CreateErrorResponse(err))
 		return
 	}
 
@@ -60,10 +60,10 @@ func (c *EmployeeController) GetEmployee(ctx *gin.Context) {
 	employee, err := c.store.GetEmployeeById(ctx, employee_id)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			ctx.JSON(http.StatusNotFound, utils.ErrorResponse(err))
+			ctx.JSON(http.StatusNotFound, utils.CreateErrorResponse(err))
 			return
 		}
-		ctx.JSON(http.StatusInternalServerError, utils.ErrorResponse(err))
+		ctx.JSON(http.StatusInternalServerError, utils.CreateErrorResponse(err))
 		return
 	}
 
@@ -82,7 +82,7 @@ func (c *EmployeeController) ListEmployees(ctx *gin.Context) {
 	var req listEmployeesRequest
 	// ShouldBindQuery はリクエストのクエリパラメータを取得
 	if err := ctx.ShouldBindQuery(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, utils.ErrorResponse(err))
+		ctx.JSON(http.StatusBadRequest, utils.CreateErrorResponse(err))
 		return
 	}
 
@@ -90,7 +90,7 @@ func (c *EmployeeController) ListEmployees(ctx *gin.Context) {
 	authPayload := ctx.MustGet(middlewares.AuthorizationPayloadKey).(*token.Payload)
 	if !authPayload.IsAdmin {
 		err := errors.New("you do not have permission")
-		ctx.JSON(http.StatusUnauthorized, utils.ErrorResponse(err))
+		ctx.JSON(http.StatusUnauthorized, utils.CreateErrorResponse(err))
 		return
 	}
 
@@ -100,7 +100,7 @@ func (c *EmployeeController) ListEmployees(ctx *gin.Context) {
 	}
 	employees, err := c.store.ListEmployees(ctx, arg)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, utils.ErrorResponse(err))
+		ctx.JSON(http.StatusInternalServerError, utils.CreateErrorResponse(err))
 		return
 	}
 

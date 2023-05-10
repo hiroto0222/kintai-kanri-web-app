@@ -39,3 +39,7 @@ see-coverage:
 # generate mock store
 mock-store:
 	cd backend && mockgen --package mockdb --destination db/mock/store.go github.com/hiroto0222/kintai-kanri-web-app/db/sqlc Store
+
+# generate swagger docs
+swagger:
+	cd backend && swag init --parseDependency --parseDepth 1
