@@ -2,7 +2,9 @@ package controllers_test
 
 import (
 	"bytes"
+	"database/sql"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -11,6 +13,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
+	"github.com/google/uuid"
 	mockdb "github.com/hiroto0222/kintai-kanri-web-app/db/mock"
 	db "github.com/hiroto0222/kintai-kanri-web-app/db/sqlc"
 	"github.com/hiroto0222/kintai-kanri-web-app/middlewares"
@@ -170,4 +173,99 @@ func requireBodyMatchClockIn(t *testing.T, body *bytes.Buffer, clockIn db.ClockI
 	require.Equal(t, clockIn.ID, got.ID)
 	require.Equal(t, clockIn.EmployeeID, got.EmployeeID)
 	require.WithinDuration(t, clockIn.ClockInTime, got.ClockInTime, time.Second*2)
+}
+
+func TestListClockInsAndClockOuts(t *testing.T) {
+	role := testutils.CreateTestRole()
+	employee, _ := testutils.CreateTestEmployee(t, role)
+
+	clockin1 := testutils.CreateTestClockIn(t, employee)
+	clockout1 := testutils.CreateTestClockOut(t, employee, clockin1)
+	clockin1.ClockedOut = true
+
+	clockin2 := testutils.CreateTestClockIn(t, employee)
+	clockout2 := testutils.CreateTestClockOut(t, employee, clockin2)
+	clockin2.ClockedOut = true
+
+	testCases := []struct {
+		name          string
+		employeeID    uuid.UUID
+		setupAuth     func(t *testing.T, request *http.Request, tokenMaker token.Maker)
+		buildStubs    func(store *mockdb.MockStore)
+		checkResponse func(t *testing.T, recorder *httptest.ResponseRecorder)
+	}{
+		{
+			name:       "OK",
+			employeeID: employee.ID,
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				testutils.AddAuthorization(t, request, tokenMaker, middlewares.AuthorizationTypeBearer, employee.ID.String(), employee.IsAdmin, time.Minute)
+			},
+			buildStubs: func(store *mockdb.MockStore) {
+				store.EXPECT().
+					ListClockInsAndClockOuts(gomock.Any(), gomock.Eq(employee.ID)).
+					Times(1).
+					Return([]db.ListClockInsAndClockOutsRow{
+						{
+							ClockInID:   clockin1.ID,
+							EmployeeID:  employee.ID,
+							ClockInTime: clockin1.ClockInTime,
+							ClockOutID: sql.NullInt32{
+								Int32: int32(clockout1.ID),
+								Valid: true,
+							},
+							ClockOutTime: sql.NullTime{
+								Time:  clockout1.ClockOutTime,
+								Valid: true,
+							},
+						},
+						{
+							ClockInID:   clockin2.ID,
+							EmployeeID:  employee.ID,
+							ClockInTime: clockin2.ClockInTime,
+							ClockOutID: sql.NullInt32{
+								Int32: int32(clockout2.ID),
+								Valid: true,
+							},
+							ClockOutTime: sql.NullTime{
+								Time:  clockout2.ClockOutTime,
+								Valid: true,
+							},
+						},
+					}, nil)
+			},
+			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusOK, recorder.Code)
+				fmt.Println(recorder.Body.String())
+			},
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			// mockのコントローラを作成
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			// 実際DBに接続せず db.Store インターフェイスのmockを作成
+			store := mockdb.NewMockStore(ctrl)
+
+			// 作成したmockに対して期待する呼び出し関数とその引数、返り値を定義
+			tc.buildStubs(store)
+
+			// テストサーバを起動
+			server := testutils.NewTestServer(t, store)
+			recorder := httptest.NewRecorder()
+
+			// テスト対象のURLを作成
+			url := fmt.Sprintf("/api/clockins/%s", tc.employeeID.String())
+
+			// テストリクエストを作成
+			request, err := http.NewRequest(http.MethodGet, url, nil)
+			require.NoError(t, err)
+
+			tc.setupAuth(t, request, server.TokenMaker)
+			server.Router.ServeHTTP(recorder, request)
+			tc.checkResponse(t, recorder)
+		})
+	}
 }
