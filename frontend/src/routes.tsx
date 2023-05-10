@@ -20,7 +20,11 @@ const Router = () => {
     },
     {
       path: "/dashboard",
-      element: <DashboardLayout />,
+      element: (
+        <DashboardLayout
+          isAdmin={authState.user ? authState.user.is_admin : false}
+        />
+      ),
       children: [
         {
           element: authState.isLoggedIn ? (
