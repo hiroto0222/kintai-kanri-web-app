@@ -3,6 +3,7 @@ import Autocomplete from "./Autocomplete";
 import Backdrop from "./Backdrop";
 import Button from "./Button";
 import Card from "./Card";
+import Chip from "./Chip";
 import Input from "./Input";
 import Paper from "./Paper";
 import Table from "./Table";
@@ -19,6 +20,7 @@ export default function componentsOverrides(theme: Theme) {
     Tooltip(theme),
     Backdrop(theme),
     Typography(theme),
-    Autocomplete(theme)
+    Autocomplete(theme),
+    Chip(theme)
   );
 }
