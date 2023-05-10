@@ -36,6 +36,21 @@ func (m *MockStore) EXPECT() *MockStoreMockRecorder {
 	return m.recorder
 }
 
+// ClockOutTx mocks base method.
+func (m *MockStore) ClockOutTx(arg0 context.Context, arg1 db.ClockOutTxParams) (db.ClockOutTxResult, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ClockOutTx", arg0, arg1)
+	ret0, _ := ret[0].(db.ClockOutTxResult)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ClockOutTx indicates an expected call of ClockOutTx.
+func (mr *MockStoreMockRecorder) ClockOutTx(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ClockOutTx", reflect.TypeOf((*MockStore)(nil).ClockOutTx), arg0, arg1)
+}
+
 // CreateClockIn mocks base method.
 func (m *MockStore) CreateClockIn(arg0 context.Context, arg1 uuid.UUID) (db.ClockIn, error) {
 	m.ctrl.T.Helper()
@@ -331,4 +346,18 @@ func (m *MockStore) ListRoles(arg0 context.Context, arg1 db.ListRolesParams) ([]
 func (mr *MockStoreMockRecorder) ListRoles(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListRoles", reflect.TypeOf((*MockStore)(nil).ListRoles), arg0, arg1)
+}
+
+// UpdateClockIn mocks base method.
+func (m *MockStore) UpdateClockIn(arg0 context.Context, arg1 db.UpdateClockInParams) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateClockIn", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateClockIn indicates an expected call of UpdateClockIn.
+func (mr *MockStoreMockRecorder) UpdateClockIn(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateClockIn", reflect.TypeOf((*MockStore)(nil).UpdateClockIn), arg0, arg1)
 }

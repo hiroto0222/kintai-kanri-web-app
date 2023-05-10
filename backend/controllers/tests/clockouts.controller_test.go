@@ -3,7 +3,6 @@ package controllers_test
 import (
 	"bytes"
 	"encoding/json"
-	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -19,7 +18,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestCreateClockIn(t *testing.T) {
+func TestCreateClockOut(t *testing.T) {
 	role := testutils.CreateTestRole()
 	employee, _ := testutils.CreateTestEmployee(t, role)
 	clockin := testutils.CreateTestClockIn(t, employee)
@@ -40,39 +39,20 @@ func TestCreateClockIn(t *testing.T) {
 				testutils.AddAuthorization(t, request, tokenMaker, middlewares.AuthorizationTypeBearer, employee.ID.String(), employee.IsAdmin, time.Minute)
 			},
 			buildStubs: func(store *mockdb.MockStore) {
-				store.EXPECT().
-					CreateClockIn(gomock.Any(), gomock.Eq(employee.ID)).
-					Times(1).
-					Return(clockin, nil)
-				store.EXPECT().
-					GetMostRecentClockIn(gomock.Any(), gomock.Eq(employee.ID)).
-					Times(1).
-					Return(db.ClockIn{}, nil)
+				store.EXPECT().GetMostRecentClockIn(gomock.Any(), gomock.Eq(employee.ID)).Times(1).Return(clockin, nil)
+
+				arg := db.ClockOutTxParams{
+					EmployeeID: employee.ID,
+					ClockInID:  clockin.ID,
+				}
+				store.EXPECT().ClockOutTx(gomock.Any(), gomock.Eq(arg)).Times(1)
 			},
 			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusCreated, recorder.Code)
-				requireBodyMatchClockIn(t, recorder.Body, clockin)
 			},
 		},
 		{
-			name: "UnAuthorized",
-			body: gin.H{
-				"employee_id": employee.ID.String(),
-			},
-			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
-				testutils.AddAuthorization(t, request, tokenMaker, middlewares.AuthorizationTypeBearer, "UnAuthorized", employee.IsAdmin, time.Minute)
-			},
-			buildStubs: func(store *mockdb.MockStore) {
-				store.EXPECT().
-					CreateClockIn(gomock.Any(), gomock.Eq(employee.ID)).
-					Times(0)
-			},
-			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
-				require.Equal(t, http.StatusUnauthorized, recorder.Code)
-			},
-		},
-		{
-			name: "BadRequest, 退出打刻せずにまた出勤打刻した場合",
+			name: "BadRequest (not yet clocked in)",
 			body: gin.H{
 				"employee_id": employee.ID.String(),
 			},
@@ -80,26 +60,20 @@ func TestCreateClockIn(t *testing.T) {
 				testutils.AddAuthorization(t, request, tokenMaker, middlewares.AuthorizationTypeBearer, employee.ID.String(), employee.IsAdmin, time.Minute)
 			},
 			buildStubs: func(store *mockdb.MockStore) {
-				store.EXPECT().
-					CreateClockIn(gomock.Any(), gomock.Eq(employee.ID)).
-					Times(0)
-				store.EXPECT().
-					GetMostRecentClockIn(gomock.Any(), gomock.Eq(employee.ID)).
-					Times(1).
-					// 退出打刻していない状態
-					Return(db.ClockIn{
-						ID:          1,
-						EmployeeID:  employee.ID,
-						ClockInTime: time.Now(),
-						ClockedOut:  false,
-					}, nil)
+				store.EXPECT().GetMostRecentClockIn(gomock.Any(), gomock.Eq(employee.ID)).Times(1).Return(db.ClockIn{}, nil)
+
+				arg := db.ClockOutTxParams{
+					EmployeeID: employee.ID,
+					ClockInID:  clockin.ID,
+				}
+				store.EXPECT().ClockOutTx(gomock.Any(), gomock.Eq(arg)).Times(0)
 			},
 			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusBadRequest, recorder.Code)
 			},
 		},
 		{
-			name: "OK, 退出打刻していて出勤打刻した場合",
+			name: "BadRequest (already clocked out)",
 			body: gin.H{
 				"employee_id": employee.ID.String(),
 			},
@@ -107,23 +81,17 @@ func TestCreateClockIn(t *testing.T) {
 				testutils.AddAuthorization(t, request, tokenMaker, middlewares.AuthorizationTypeBearer, employee.ID.String(), employee.IsAdmin, time.Minute)
 			},
 			buildStubs: func(store *mockdb.MockStore) {
-				store.EXPECT().
-					CreateClockIn(gomock.Any(), gomock.Eq(employee.ID)).
-					Times(1).
-					Return(clockin, nil)
-				store.EXPECT().
-					GetMostRecentClockIn(gomock.Any(), gomock.Eq(employee.ID)).
-					Times(1).
-					Return(db.ClockIn{
-						ID:          1,
-						EmployeeID:  employee.ID,
-						ClockInTime: time.Now(),
-						ClockedOut:  true,
-					}, nil)
+				clockin.ClockedOut = true // 既にClockOutしている状態にする
+				store.EXPECT().GetMostRecentClockIn(gomock.Any(), gomock.Eq(employee.ID)).Times(1).Return(clockin, nil)
+
+				arg := db.ClockOutTxParams{
+					EmployeeID: employee.ID,
+					ClockInID:  clockin.ID,
+				}
+				store.EXPECT().ClockOutTx(gomock.Any(), gomock.Eq(arg)).Times(0)
 			},
 			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
-				require.Equal(t, http.StatusCreated, recorder.Code)
-				requireBodyMatchClockIn(t, recorder.Body, clockin)
+				require.Equal(t, http.StatusBadRequest, recorder.Code)
 			},
 		},
 	}
@@ -145,7 +113,7 @@ func TestCreateClockIn(t *testing.T) {
 			recorder := httptest.NewRecorder()
 
 			// テスト対象のURLを作成
-			url := "/api/clockins"
+			url := "/api/clockouts"
 			data, err := json.Marshal(tc.body)
 			require.NoError(t, err)
 
@@ -158,16 +126,4 @@ func TestCreateClockIn(t *testing.T) {
 			tc.checkResponse(t, recorder)
 		})
 	}
-}
-
-func requireBodyMatchClockIn(t *testing.T, body *bytes.Buffer, clockIn db.ClockIn) {
-	data, err := io.ReadAll(body)
-	require.NoError(t, err)
-
-	var got db.ClockIn
-	err = json.Unmarshal(data, &got)
-	require.NoError(t, err)
-	require.Equal(t, clockIn.ID, got.ID)
-	require.Equal(t, clockIn.EmployeeID, got.EmployeeID)
-	require.WithinDuration(t, clockIn.ClockInTime, got.ClockInTime, time.Second*2)
 }

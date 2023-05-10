@@ -20,6 +20,11 @@ WHERE "employee_id" = $1
 ORDER BY "clock_in_time" DESC
 LIMIT 1;
 
+-- name: UpdateClockIn :exec
+UPDATE "ClockIns"
+SET "clocked_out" = $1
+WHERE "id" = $2;
+
 -- name: DeleteClockIn :exec
 DELETE FROM "ClockIns"
 WHERE "id" = $1;

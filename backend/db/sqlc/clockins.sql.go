@@ -163,3 +163,19 @@ func (q *Queries) ListClockInsAndClockOuts(ctx context.Context, employeeID uuid.
 	}
 	return items, nil
 }
+
+const updateClockIn = `-- name: UpdateClockIn :exec
+UPDATE "ClockIns"
+SET "clocked_out" = $1
+WHERE "id" = $2
+`
+
+type UpdateClockInParams struct {
+	ClockedOut bool  `json:"clocked_out"`
+	ID         int32 `json:"id"`
+}
+
+func (q *Queries) UpdateClockIn(ctx context.Context, arg UpdateClockInParams) error {
+	_, err := q.db.ExecContext(ctx, updateClockIn, arg.ClockedOut, arg.ID)
+	return err
+}
