@@ -3,22 +3,23 @@ import {
   Card,
   CardContent,
   Container,
-  Stack,
-  TextField,
   Typography,
 } from "@mui/material";
-import { useState } from "react";
 import { Helmet } from "react-helmet-async";
+import { SubmitHandler, useForm } from "react-hook-form";
+import LoginForm, { LoginFormProps } from "../components/auth/LoginForm";
 import useAuthApi from "../hooks/api/useAuthApi";
 
 const LoginPage = () => {
   const { login } = useAuthApi();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const { handleSubmit, control } = useForm<LoginFormProps>({
+    mode: "onBlur",
+    criteriaMode: "all",
+    shouldFocusError: true,
+  });
 
-  const handleSubmit = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-    e.preventDefault();
-    login(email, password);
+  const onSubmit: SubmitHandler<LoginFormProps> = (data) => {
+    login(data.Email, data.Password);
   };
 
   return (
@@ -40,35 +41,17 @@ const LoginPage = () => {
           sx={{
             width: "100%",
           }}
+          component="form"
+          onSubmit={handleSubmit(onSubmit)}
         >
           <CardContent>
             <Typography variant="h4" align="center" gutterBottom>
               Welcome
             </Typography>
-            <Stack spacing={3} padding={3}>
-              <TextField
-                name="email"
-                label="Email address"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-              <TextField
-                name="password"
-                label="Password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-              <Button
-                fullWidth
-                size="large"
-                type="submit"
-                variant="contained"
-                onClick={(e) => handleSubmit(e)}
-              >
-                Login
-              </Button>
-            </Stack>
+            <LoginForm control={control} />
+            <Button fullWidth size="large" type="submit" variant="contained">
+              Login
+            </Button>
           </CardContent>
         </Card>
       </Container>
