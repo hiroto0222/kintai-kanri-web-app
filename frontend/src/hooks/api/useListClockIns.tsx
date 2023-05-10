@@ -15,10 +15,8 @@ const useListClockIns = (privateApi: AxiosInstance) => {
       try {
         const response: AxiosResponse<ListClockInsResponse[]> =
           await privateApi.get(url, { withCredentials: true });
-        toast.success("successfully retrieved clock ins and clock outs!");
         setLoading(false);
         setClockIns(response.data);
-        console.log(response.data);
       } catch (error) {
         toast.error(`an error occured, ${error}`);
         setLoading(false);

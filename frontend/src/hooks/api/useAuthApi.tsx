@@ -1,5 +1,6 @@
 import { AxiosInstance, AxiosResponse } from "axios";
 import { useContext } from "react";
+import { toast } from "react-hot-toast";
 import { RegisterFormProps } from "../../components/auth/RegisterForm";
 import { authContext } from "../../context/auth";
 import { AuthActionEnum } from "../../context/auth/authAction";
@@ -26,7 +27,7 @@ const useAuthApi = (privateApi: AxiosInstance) => {
         payload: response.data,
       });
     } catch (error) {
-      console.log(error);
+      toast.error(`an error occured, ${error}`);
     }
   };
 
@@ -49,9 +50,9 @@ const useAuthApi = (privateApi: AxiosInstance) => {
           withCredentials: true,
         }
       );
-      console.log(response.data);
+      toast.success("Employee registered successfully");
     } catch (error) {
-      console.log(error);
+      toast.error(`an error occured, ${error}`);
     }
   };
 
