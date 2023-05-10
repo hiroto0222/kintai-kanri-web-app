@@ -5,6 +5,10 @@ import (
 	"net/http"
 	"time"
 
+	_ "github.com/hiroto0222/kintai-kanri-web-app/docs" // swagger docs
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
+
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/hiroto0222/kintai-kanri-web-app/config"
@@ -70,6 +74,9 @@ func (server *Server) setupRouter() {
 	}))
 
 	apiRoutes := router.Group("/api")
+
+	// swagger docs
+	apiRoutes.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	apiRoutes.GET("/healthchecker", func(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, gin.H{"status": "success", "message": "Server is running!"})
