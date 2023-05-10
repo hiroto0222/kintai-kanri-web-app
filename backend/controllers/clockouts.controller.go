@@ -32,7 +32,18 @@ type reqCreateClockOut struct {
 	EmployeeID string `json:"employee_id" binding:"required"`
 }
 
-// POST: api/clockouts 退出打刻
+// CreateClockOut godoc
+// @Summary      退出打刻
+// @Tags         clockouts
+// @Accept       json
+// @Produce      json
+// @Security		 BearerAuth
+// @Param request body reqCreateClockOut true "Request body"
+// @Success      201  {object}   db.ClockOutTxResult
+// @Failure      400  {object}   utils.ErrorResponse
+// @Failure      401  {object}   utils.ErrorResponse
+// @Failure      500  {object}   utils.ErrorResponse
+// @Router       /clockouts [post]
 func (c *ClockOutController) CreateClockOut(ctx *gin.Context) {
 	var req reqCreateClockOut
 

@@ -25,6 +25,8 @@ var (
 // @securityDefinitions.apikey BearerAuth
 // @in header
 // @name Authorization
+// @type http
+// @scheme bearer
 func main() {
 	// load config
 	config, err := config.LoadConfig(".")

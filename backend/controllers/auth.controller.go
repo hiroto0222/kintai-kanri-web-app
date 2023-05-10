@@ -43,6 +43,7 @@ type registerEmployeeRequest struct {
 // @Tags         auth
 // @Accept       json
 // @Produce      json
+// @Security		 BearerAuth
 // @Param request body registerEmployeeRequest true "Request body"
 // @Success      201  {object}  EmployeeResponse
 // @Failure      400  {object}   utils.ErrorResponse

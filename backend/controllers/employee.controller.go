@@ -32,7 +32,19 @@ type getEmployeeRequest struct {
 	ID string `uri:"id" binding:"required,min=1"`
 }
 
-// GetEmployee: api/employees/:id 従業員情報取得 (権限: Admin, 自分)
+// GetEmployee godoc
+// @Summary      従業員情報を取得
+// @Tags         employees
+// @Accept       json
+// @Produce      json
+// @Security		 BearerAuth
+// @Param id path string true "ID of the employee to retrieve"
+// @Success      200  {object}   EmployeeResponse
+// @Failure      400  {object}   utils.ErrorResponse
+// @Failure      401  {object}   utils.ErrorResponse
+// @Failure      404  {object}   utils.ErrorResponse
+// @Failure      500  {object}   utils.ErrorResponse
+// @Router       /employees/:id [get]
 func (c *EmployeeController) GetEmployee(ctx *gin.Context) {
 	var req getEmployeeRequest
 	// ShouldBindUri はリクエストのURIからパラメータを取得
@@ -77,7 +89,6 @@ type listEmployeesRequest struct {
 	PageSize int32 `form:"page_size" binding:"required,min=5,max=10"`
 }
 
-// GetEmployees: api/employees 全従業員情報を取得 (権限: Admin)
 func (c *EmployeeController) ListEmployees(ctx *gin.Context) {
 	var req listEmployeesRequest
 	// ShouldBindQuery はリクエストのクエリパラメータを取得
