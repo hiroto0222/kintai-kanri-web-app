@@ -1,14 +1,14 @@
 // AuthContext Reducer
 
 import { Reducer } from "react";
-import { User } from "../../services/auth";
+import { Employee } from "../../services/employees";
 import { AuthAction, AuthActionEnum } from "./authAction";
 
 export interface AuthState {
   isLoggedIn: boolean;
   accessToken?: string;
   refreshToken?: string;
-  user?: User;
+  user?: Employee;
 }
 
 export const defaultAuthState: AuthState = {

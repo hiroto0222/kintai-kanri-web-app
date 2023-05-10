@@ -1,14 +1,12 @@
-import { AxiosResponse } from "axios";
+import { AxiosInstance, AxiosResponse } from "axios";
 import { useContext } from "react";
 import { RegisterFormProps } from "../../components/auth/RegisterForm";
 import { authContext } from "../../context/auth";
 import { AuthActionEnum } from "../../context/auth/authAction";
 import api from "../../services/api";
 import { UserLoginResponse } from "../../services/auth";
-import usePrivateAxios from "../usePrivateAxios";
 
-const useAuthApi = () => {
-  const privateApi = usePrivateAxios();
+const useAuthApi = (privateApi: AxiosInstance) => {
   const { authDispatch } = useContext(authContext);
 
   const login = async (email: string, password: string) => {
