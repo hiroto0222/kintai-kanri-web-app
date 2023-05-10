@@ -1,3 +1,4 @@
+import { toast } from "react-hot-toast";
 import usePrivateAxios from "../usePrivateAxios";
 
 const useEmployees = () => {
@@ -7,10 +8,9 @@ const useEmployees = () => {
     const url = `employees/${id}`;
     try {
       const response = await api.get(url, {});
-      console.log(response.data);
       return response.data;
     } catch (error) {
-      console.log(error);
+      toast.error(`an error occured, ${error}`);
     }
   };
 

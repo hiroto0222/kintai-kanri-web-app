@@ -1,3 +1,4 @@
+import { toast } from "react-hot-toast";
 import usePrivateAxios from "../usePrivateAxios";
 
 const useClockApi = () => {
@@ -6,7 +7,7 @@ const useClockApi = () => {
   const clockIn = async (employeeID: string) => {
     const url = "clockins";
     try {
-      const response = await api.post(
+      await api.post(
         url,
         {
           employee_id: employeeID,
@@ -15,9 +16,9 @@ const useClockApi = () => {
           withCredentials: true,
         }
       );
-      console.log(response.data);
+      toast.success("successfully clocked in!");
     } catch (error) {
-      console.log(error);
+      toast.error(`an error occured, ${error}`);
     }
   };
 
