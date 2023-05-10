@@ -1,6 +1,7 @@
 version: "3"
 services:
   backend:
+    image: ${ECR_REGISTRY}/${ECR_REPOSITORY}:backend_${IMAGE_TAG}
     container_name: prod-backend
     environment:
       - GIN_MODE=release
@@ -16,7 +17,7 @@ services:
     command: ["/app/main"]
 
   db:
-    image: postgres:13
+    image: ${ECR_REGISTRY}/${ECR_REPOSITORY}:postgres_${IMAGE_TAG}
     container_name: prod-postgres
     environment:
       POSTGRES_EXTENSIONS: uuid-ossp
