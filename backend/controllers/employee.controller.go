@@ -32,19 +32,31 @@ type getEmployeeRequest struct {
 	ID string `uri:"id" binding:"required,min=1"`
 }
 
-// GetEmployee: api/employees/:id 従業員情報取得 (権限: Admin, 自分)
+// GetEmployee godoc
+// @Summary      従業員情報を取得
+// @Tags         employees
+// @Accept       json
+// @Produce      json
+// @Security		 BearerAuth
+// @Param id path string true "ID of the employee to retrieve"
+// @Success      200  {object}   EmployeeResponse
+// @Failure      400  {object}   utils.ErrorResponse
+// @Failure      401  {object}   utils.ErrorResponse
+// @Failure      404  {object}   utils.ErrorResponse
+// @Failure      500  {object}   utils.ErrorResponse
+// @Router       /employees/:id [get]
 func (c *EmployeeController) GetEmployee(ctx *gin.Context) {
 	var req getEmployeeRequest
 	// ShouldBindUri はリクエストのURIからパラメータを取得
 	if err := ctx.ShouldBindUri(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, utils.ErrorResponse(err))
+		ctx.JSON(http.StatusBadRequest, utils.CreateErrorResponse(err))
 		return
 	}
 
 	// 文字列で渡された employee_id をUUIDに変換
 	employee_id, err := uuid.Parse(req.ID)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, utils.ErrorResponse(err))
+		ctx.JSON(http.StatusBadRequest, utils.CreateErrorResponse(err))
 		return
 	}
 
@@ -52,7 +64,7 @@ func (c *EmployeeController) GetEmployee(ctx *gin.Context) {
 	authPayload := ctx.MustGet(middlewares.AuthorizationPayloadKey).(*token.Payload)
 	if employee_id.String() != authPayload.EmployeeID && !authPayload.IsAdmin {
 		err := errors.New("you do not have permission")
-		ctx.JSON(http.StatusUnauthorized, utils.ErrorResponse(err))
+		ctx.JSON(http.StatusUnauthorized, utils.CreateErrorResponse(err))
 		return
 	}
 
@@ -60,10 +72,10 @@ func (c *EmployeeController) GetEmployee(ctx *gin.Context) {
 	employee, err := c.store.GetEmployeeById(ctx, employee_id)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			ctx.JSON(http.StatusNotFound, utils.ErrorResponse(err))
+			ctx.JSON(http.StatusNotFound, utils.CreateErrorResponse(err))
 			return
 		}
-		ctx.JSON(http.StatusInternalServerError, utils.ErrorResponse(err))
+		ctx.JSON(http.StatusInternalServerError, utils.CreateErrorResponse(err))
 		return
 	}
 
@@ -77,12 +89,11 @@ type listEmployeesRequest struct {
 	PageSize int32 `form:"page_size" binding:"required,min=5,max=10"`
 }
 
-// GetEmployees: api/employees 全従業員情報を取得 (権限: Admin)
 func (c *EmployeeController) ListEmployees(ctx *gin.Context) {
 	var req listEmployeesRequest
 	// ShouldBindQuery はリクエストのクエリパラメータを取得
 	if err := ctx.ShouldBindQuery(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, utils.ErrorResponse(err))
+		ctx.JSON(http.StatusBadRequest, utils.CreateErrorResponse(err))
 		return
 	}
 
@@ -90,7 +101,7 @@ func (c *EmployeeController) ListEmployees(ctx *gin.Context) {
 	authPayload := ctx.MustGet(middlewares.AuthorizationPayloadKey).(*token.Payload)
 	if !authPayload.IsAdmin {
 		err := errors.New("you do not have permission")
-		ctx.JSON(http.StatusUnauthorized, utils.ErrorResponse(err))
+		ctx.JSON(http.StatusUnauthorized, utils.CreateErrorResponse(err))
 		return
 	}
 
@@ -100,7 +111,7 @@ func (c *EmployeeController) ListEmployees(ctx *gin.Context) {
 	}
 	employees, err := c.store.ListEmployees(ctx, arg)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, utils.ErrorResponse(err))
+		ctx.JSON(http.StatusInternalServerError, utils.CreateErrorResponse(err))
 		return
 	}
 

@@ -1,8 +1,10 @@
 package utils
 
-import "github.com/gin-gonic/gin"
+// CreateErrorResponse is a generic error response
+func CreateErrorResponse(err error) ErrorResponse {
+	return ErrorResponse{Error: err.Error()}
+}
 
-// ErrorResponse is a generic error response
-func ErrorResponse(err error) gin.H {
-	return gin.H{"error": err.Error()}
+type ErrorResponse struct {
+	Error string `json:"error"`
 }
