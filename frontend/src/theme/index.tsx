@@ -9,7 +9,7 @@ import { useMemo } from "react";
 import customShadows from "./customShadows";
 import GlobalStyles from "./globalStyles";
 import componentsOverrides from "./overrides";
-import palette from "./pallete";
+import palette from "./palette";
 import shadows from "./shadows";
 import typography from "./typography";
 

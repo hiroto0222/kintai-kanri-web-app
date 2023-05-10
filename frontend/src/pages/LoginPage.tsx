@@ -9,9 +9,11 @@ import { Helmet } from "react-helmet-async";
 import { SubmitHandler, useForm } from "react-hook-form";
 import LoginForm, { LoginFormProps } from "../components/auth/LoginForm";
 import useAuthApi from "../hooks/api/useAuthApi";
+import usePrivateAxios from "../hooks/usePrivateAxios";
 
 const LoginPage = () => {
-  const { login } = useAuthApi();
+  const privateAxios = usePrivateAxios();
+  const { login } = useAuthApi(privateAxios);
   const { handleSubmit, control } = useForm<LoginFormProps>({
     mode: "onBlur",
     criteriaMode: "all",

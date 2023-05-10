@@ -1,32 +1,22 @@
-import { useContext } from "react";
-import { Navigate, Route, Routes } from "react-router-dom";
-import { authContext } from "./context/auth";
-import LoginPage from "./pages/LoginPage";
-import MyPage from "./pages/MyPage";
-import RegisterPage from "./pages/RegisterPage";
+import { HelmetProvider } from "react-helmet-async";
+import { Toaster } from "react-hot-toast";
+import { BrowserRouter } from "react-router-dom";
+import { AuthContextProvider } from "./context/auth/AuthContextProvider";
+import Router from "./routes";
+import ThemeProvider from "./theme/index.tsx";
 
 const App = () => {
-  const { authState } = useContext(authContext);
-
   return (
-    <div>
-      <Routes>
-        <Route
-          path="/"
-          element={authState.isLoggedIn ? <MyPage /> : <LoginPage />}
-        />
-        <Route
-          path="/register"
-          element={
-            authState.isLoggedIn && authState.user?.is_admin ? (
-              <RegisterPage />
-            ) : (
-              <Navigate to="/" />
-            )
-          }
-        />
-      </Routes>
-    </div>
+    <HelmetProvider>
+      <BrowserRouter>
+        <AuthContextProvider>
+          <ThemeProvider>
+            <Toaster />
+            <Router />
+          </ThemeProvider>
+        </AuthContextProvider>
+      </BrowserRouter>
+    </HelmetProvider>
   );
 };
 
