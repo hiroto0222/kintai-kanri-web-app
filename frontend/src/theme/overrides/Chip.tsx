@@ -7,7 +7,7 @@ export default function Chip(theme: Theme) {
         colorSuccess: {
           backgroundColor: theme.palette.success.light,
         },
-        colorError: { backgroundColor: theme.palette.error.light },
+        colorError: { backgroundColor: theme.palette.error.main },
       },
     },
   };
