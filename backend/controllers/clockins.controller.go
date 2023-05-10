@@ -1,7 +1,9 @@
 package controllers
 
 import (
+	"database/sql"
 	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -53,8 +55,10 @@ func (c *ClockInController) CreateClockIn(ctx *gin.Context) {
 		return
 	}
 
+	fmt.Println(reqEmployeeID)
+
 	prevClockIn, err := c.store.GetMostRecentClockIn(ctx, reqEmployeeID)
-	if err != nil {
+	if err != nil && err != sql.ErrNoRows {
 		ctx.JSON(http.StatusInternalServerError, utils.ErrorResponse(err))
 		return
 	}
