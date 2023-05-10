@@ -1,14 +1,18 @@
 import { AxiosInstance } from "axios";
+import { useContext } from "react";
 import { toast } from "react-hot-toast";
+import { authContext } from "../../context/auth";
 
 const useClockInsClockOutsApi = (privateApi: AxiosInstance) => {
-  const clockIn = async (employeeID: string) => {
+  const { authState } = useContext(authContext);
+
+  const clockIn = async () => {
     const url = "clockins";
     try {
       await privateApi.post(
         url,
         {
-          employee_id: employeeID,
+          employee_id: authState.user?.id,
         },
         {
           withCredentials: true,
@@ -20,12 +24,12 @@ const useClockInsClockOutsApi = (privateApi: AxiosInstance) => {
     }
   };
 
-  const clockOut = async (employeeID: string) => {
+  const clockOut = async () => {
     const url = "clockouts";
     try {
       await privateApi.post(
         url,
-        { employee_id: employeeID },
+        { employee_id: authState.user?.id },
         { withCredentials: true }
       );
       toast.success("successfully clocked out!");
