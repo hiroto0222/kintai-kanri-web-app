@@ -7,6 +7,8 @@ package db
 
 import (
 	"context"
+	"database/sql"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -97,6 +99,57 @@ func (q *Queries) ListClockIns(ctx context.Context, employeeID uuid.UUID) ([]Clo
 			&i.EmployeeID,
 			&i.ClockedOut,
 			&i.ClockInTime,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listClockInsAndClockOuts = `-- name: ListClockInsAndClockOuts :many
+SELECT
+  ci.id AS clock_in_id,
+  ci.employee_id,
+  ci.clock_in_time,
+  co.id AS clock_out_id,
+  co.clock_out_time
+FROM "ClockIns" AS ci
+  LEFT JOIN "ClockOuts" co
+  ON ci.id = co.clock_in_id
+WHERE ci.employee_id = $1
+ORDER BY ci.clock_in_time DESC
+`
+
+type ListClockInsAndClockOutsRow struct {
+	ClockInID    int32         `json:"clock_in_id"`
+	EmployeeID   uuid.UUID     `json:"employee_id"`
+	ClockInTime  time.Time     `json:"clock_in_time"`
+	ClockOutID   sql.NullInt32 `json:"clock_out_id"`
+	ClockOutTime sql.NullTime  `json:"clock_out_time"`
+}
+
+func (q *Queries) ListClockInsAndClockOuts(ctx context.Context, employeeID uuid.UUID) ([]ListClockInsAndClockOutsRow, error) {
+	rows, err := q.db.QueryContext(ctx, listClockInsAndClockOuts, employeeID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListClockInsAndClockOutsRow
+	for rows.Next() {
+		var i ListClockInsAndClockOutsRow
+		if err := rows.Scan(
+			&i.ClockInID,
+			&i.EmployeeID,
+			&i.ClockInTime,
+			&i.ClockOutID,
+			&i.ClockOutTime,
 		); err != nil {
 			return nil, err
 		}

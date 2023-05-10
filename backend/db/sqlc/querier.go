@@ -27,6 +27,7 @@ type Querier interface {
 	GetRoleByID(ctx context.Context, id int32) (Role, error)
 	GetSession(ctx context.Context, id uuid.UUID) (Session, error)
 	ListClockIns(ctx context.Context, employeeID uuid.UUID) ([]ClockIn, error)
+	ListClockInsAndClockOuts(ctx context.Context, employeeID uuid.UUID) ([]ListClockInsAndClockOutsRow, error)
 	ListClockOuts(ctx context.Context, employeeID uuid.UUID) ([]ClockOut, error)
 	ListEmployees(ctx context.Context, arg ListEmployeesParams) ([]Employee, error)
 	ListRoles(ctx context.Context, arg ListRolesParams) ([]Role, error)

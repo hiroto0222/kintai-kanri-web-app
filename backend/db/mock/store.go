@@ -273,6 +273,21 @@ func (mr *MockStoreMockRecorder) ListClockIns(arg0, arg1 interface{}) *gomock.Ca
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListClockIns", reflect.TypeOf((*MockStore)(nil).ListClockIns), arg0, arg1)
 }
 
+// ListClockInsAndClockOuts mocks base method.
+func (m *MockStore) ListClockInsAndClockOuts(arg0 context.Context, arg1 uuid.UUID) ([]db.ListClockInsAndClockOutsRow, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ListClockInsAndClockOuts", arg0, arg1)
+	ret0, _ := ret[0].([]db.ListClockInsAndClockOutsRow)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ListClockInsAndClockOuts indicates an expected call of ListClockInsAndClockOuts.
+func (mr *MockStoreMockRecorder) ListClockInsAndClockOuts(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListClockInsAndClockOuts", reflect.TypeOf((*MockStore)(nil).ListClockInsAndClockOuts), arg0, arg1)
+}
+
 // ListClockOuts mocks base method.
 func (m *MockStore) ListClockOuts(arg0 context.Context, arg1 uuid.UUID) ([]db.ClockOut, error) {
 	m.ctrl.T.Helper()

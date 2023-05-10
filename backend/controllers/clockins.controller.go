@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -59,8 +58,6 @@ func (c *ClockInController) CreateClockIn(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, utils.ErrorResponse(err))
 		return
 	}
-
-	fmt.Println(prevClockIn)
 
 	// 退出打刻しないまま出勤打刻している場合はエラー
 	if prevClockIn != (db.ClockIn{}) && !prevClockIn.ClockedOut {

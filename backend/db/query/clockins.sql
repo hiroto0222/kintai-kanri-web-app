@@ -23,3 +23,16 @@ LIMIT 1;
 -- name: DeleteClockIn :exec
 DELETE FROM "ClockIns"
 WHERE "id" = $1;
+
+-- name: ListClockInsAndClockOuts :many
+SELECT
+  ci.id AS clock_in_id,
+  ci.employee_id,
+  ci.clock_in_time,
+  co.id AS clock_out_id,
+  co.clock_out_time
+FROM "ClockIns" AS ci
+  LEFT JOIN "ClockOuts" co
+  ON ci.id = co.clock_in_id
+WHERE ci.employee_id = $1
+ORDER BY ci.clock_in_time DESC;
