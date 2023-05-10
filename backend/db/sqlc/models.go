@@ -14,6 +14,7 @@ import (
 type ClockIn struct {
 	ID          int32     `json:"id"`
 	EmployeeID  uuid.UUID `json:"employee_id"`
+	ClockedOut  bool      `json:"clocked_out"`
 	ClockInTime time.Time `json:"clock_in_time"`
 }
 

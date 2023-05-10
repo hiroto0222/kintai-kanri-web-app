@@ -17,6 +17,7 @@ import (
 var (
 	AuthController     controllers.AuthController
 	EmployeeController controllers.EmployeeController
+	ClockInController  controllers.ClockInController
 )
 
 // 全てのHTTPリクエストを処理するHTTP APIサーバ
@@ -43,6 +44,7 @@ func NewServer(config config.Config, store db.Store) (*Server, error) {
 	// create controllers
 	AuthController = *controllers.NewAuthController(config, store, tokenMaker)
 	EmployeeController = *controllers.NewEmployeeController(config, store, tokenMaker)
+	ClockInController = *controllers.NewClockInController(config, store, tokenMaker)
 
 	// setup routers
 	server.setupRouter()
@@ -78,6 +80,9 @@ func (server *Server) setupRouter() {
 
 	EmployeeRoutes := routes.NewEmployeeRoutes(EmployeeController)
 	EmployeeRoutes.EmployeeRoute(apiRoutes)
+
+	ClockInRoutes := routes.NewClockInRoutes(ClockInController)
+	ClockInRoutes.ClockInRoute(apiRoutes)
 
 	server.Router = router
 }

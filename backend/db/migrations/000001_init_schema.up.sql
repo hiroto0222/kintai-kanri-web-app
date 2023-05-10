@@ -1,3 +1,4 @@
+SET TIMEZONE TO "Asia/Tokyo";
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 CREATE TABLE "Employees" (
@@ -28,6 +29,7 @@ CREATE TABLE "Shifts" (
 CREATE TABLE "ClockIns" (
   "id" serial PRIMARY KEY,
   "employee_id" uuid NOT NULL,
+  "clocked_out" bool NOT NULL DEFAULT false,
   "clock_in_time" timestamptz NOT NULL DEFAULT (now())
 );
 
