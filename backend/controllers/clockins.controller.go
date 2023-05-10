@@ -85,3 +85,39 @@ func (c *ClockInController) CreateClockIn(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusCreated, clockIn)
 }
+
+type reqListClockInsAndClockOuts struct {
+	EmployeeID string `uri:"employee_id" binding:"required"`
+}
+
+// GET: api/clockins/:employee_id 従業員の全出勤打刻情報を取得
+func (c *ClockInController) ListClockInsAndClockOuts(ctx *gin.Context) {
+	var req reqListClockInsAndClockOuts
+
+	// ShouldBindUri はリクエストのURIからパラメータを取得
+	if err := ctx.ShouldBindUri(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, utils.ErrorResponse(err))
+		return
+	}
+
+	authPayload := ctx.MustGet(middlewares.AuthorizationPayloadKey).(*token.Payload)
+	if authPayload.EmployeeID != req.EmployeeID {
+		err := errors.New("you do not have permission")
+		ctx.JSON(http.StatusUnauthorized, utils.ErrorResponse(err))
+		return
+	}
+
+	reqEmployeeID, err := uuid.Parse(req.EmployeeID)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, utils.ErrorResponse(err))
+		return
+	}
+
+	clockIns, err := c.store.ListClockInsAndClockOuts(ctx, reqEmployeeID)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, utils.ErrorResponse(err))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, clockIns)
+}
