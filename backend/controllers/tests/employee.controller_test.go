@@ -194,7 +194,7 @@ func TestListEmployees(t *testing.T) {
 			recorder := httptest.NewRecorder()
 
 			// テスト対象のURLを作成
-			url := "/api/employees/"
+			url := "/api/employees"
 
 			// テストリクエストを作成
 			request, err := http.NewRequest(http.MethodGet, url, nil)
