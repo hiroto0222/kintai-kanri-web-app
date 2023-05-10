@@ -31,6 +31,7 @@ type Querier interface {
 	ListClockOuts(ctx context.Context, employeeID uuid.UUID) ([]ClockOut, error)
 	ListEmployees(ctx context.Context, arg ListEmployeesParams) ([]Employee, error)
 	ListRoles(ctx context.Context, arg ListRolesParams) ([]Role, error)
+	UpdateClockIn(ctx context.Context, arg UpdateClockInParams) error
 }
 
 var _ Querier = (*Queries)(nil)

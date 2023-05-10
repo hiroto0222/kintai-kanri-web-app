@@ -3,10 +3,12 @@ import { useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { authContext } from "../context/auth";
 import useAuthApi from "../hooks/api/useAuthApi";
+import useClockApi from "../hooks/api/useClockApi";
 import useEmployees from "../hooks/api/useEmployeesApi";
 
 const MyPage = () => {
   const { getEmployeeById } = useEmployees();
+  const { clockIn } = useClockApi();
   const { logout } = useAuthApi();
   const { authState } = useContext(authContext);
   const navigate = useNavigate();
@@ -46,6 +48,14 @@ const MyPage = () => {
         }}
       >
         register
+      </Button>
+      <Button
+        variant="contained"
+        onClick={() => {
+          if (authState.user) clockIn(authState.user?.id);
+        }}
+      >
+        Clock In
       </Button>
     </div>
   );
