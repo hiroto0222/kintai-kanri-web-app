@@ -1,4 +1,4 @@
-import { Grid, TextField } from "@mui/material";
+import { Checkbox, FormControlLabel, Grid, TextField } from "@mui/material";
 import { Control, Controller } from "react-hook-form";
 
 export type RegisterFormProps = {
@@ -135,22 +135,38 @@ const RegisterForm: React.FC<Props> = ({ control }) => {
             rules={{
               ...item.rules,
             }}
-            render={({
-              field: { onChange, onBlur, value },
-              fieldState: { error },
-            }) => (
-              <TextField
-                label={item.label}
-                type={item.type}
-                required={item.required}
-                fullWidth
-                value={value}
-                onChange={onChange}
-                onBlur={onBlur}
-                error={Boolean(error)}
-                helperText={error?.message}
-              />
-            )}
+            render={
+              item.type === "checkbox"
+                ? ({ field: { onChange, onBlur, value } }) => (
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          value={value}
+                          onChange={onChange}
+                          onBlur={onBlur}
+                          required={item.required}
+                        />
+                      }
+                      label={item.label}
+                    />
+                  )
+                : ({
+                    field: { onChange, onBlur, value },
+                    fieldState: { error },
+                  }) => (
+                    <TextField
+                      label={item.label}
+                      type={item.type}
+                      required={item.required}
+                      fullWidth
+                      value={value}
+                      onChange={onChange}
+                      onBlur={onBlur}
+                      error={Boolean(error)}
+                      helperText={error?.message}
+                    />
+                  )
+            }
           />
         </Grid>
       ))}

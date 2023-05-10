@@ -20,10 +20,8 @@ const useListEmployees = (privateApi: AxiosInstance) => {
             page_size: 20, // TODO: add pagination
           },
         });
-        toast.success("successfully retrieved employees!");
         setLoading(false);
         setEmployees(response.data);
-        console.log(response.data);
       } catch (error) {
         toast.error(`an error occured, ${error}`);
         setLoading(false);

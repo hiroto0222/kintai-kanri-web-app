@@ -5,7 +5,7 @@ import { DashboardLayout } from "./layouts/DashboardLayout";
 import DashboardPage from "./pages/DashboardPage";
 import EmployeesPage from "./pages/EmployeesPage";
 import LoginPage from "./pages/LoginPage";
-import RegisterPage from "./pages/RegisterPage";
+import RegisterEmployeePage from "./pages/RegisterEmployeePage";
 
 const Router = () => {
   const { authState } = useContext(authContext);
@@ -48,7 +48,7 @@ const Router = () => {
           path: "employees/register",
           element:
             authState.isLoggedIn && authState.user?.is_admin ? (
-              <RegisterPage />
+              <RegisterEmployeePage />
             ) : (
               <Navigate to="/" />
             ),
