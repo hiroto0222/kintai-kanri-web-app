@@ -1,6 +1,5 @@
 import { AxiosResponse } from "axios";
 import { useContext } from "react";
-import { useNavigate } from "react-router-dom";
 import { RegisterFormProps } from "../../components/auth/RegisterForm";
 import { authContext } from "../../context/auth";
 import { AuthActionEnum } from "../../context/auth/authAction";
@@ -11,7 +10,6 @@ import usePrivateAxios from "../usePrivateAxios";
 const useAuthApi = () => {
   const privateApi = usePrivateAxios();
   const { authDispatch } = useContext(authContext);
-  const navigate = useNavigate();
 
   const login = async (email: string, password: string) => {
     const url = "auth/login";
@@ -29,8 +27,6 @@ const useAuthApi = () => {
         type: AuthActionEnum.LOG_IN,
         payload: response.data,
       });
-      console.log(response.data);
-      navigate("/me");
     } catch (error) {
       console.log(error);
     }

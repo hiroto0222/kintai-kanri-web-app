@@ -1,6 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { HelmetProvider } from "react-helmet-async";
+import { Toaster } from "react-hot-toast";
 import { BrowserRouter } from "react-router-dom";
 import App from "./App.tsx";
 import { AuthContextProvider } from "./context/auth/AuthContextProvider.tsx";
@@ -13,6 +14,7 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
         <AuthContextProvider>
           <ThemeProvider>
             <App />
+            <Toaster />
           </ThemeProvider>
         </AuthContextProvider>
       </BrowserRouter>

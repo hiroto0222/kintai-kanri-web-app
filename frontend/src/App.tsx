@@ -13,11 +13,7 @@ const App = () => {
       <Routes>
         <Route
           path="/"
-          element={authState.isLoggedIn ? <Navigate to="/me" /> : <LoginPage />}
-        />
-        <Route
-          path="/me"
-          element={authState.isLoggedIn ? <MyPage /> : <Navigate to="/" />}
+          element={authState.isLoggedIn ? <MyPage /> : <LoginPage />}
         />
         <Route
           path="/register"
