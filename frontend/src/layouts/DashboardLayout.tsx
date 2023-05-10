@@ -15,7 +15,7 @@ const Main = styled("div")(({ theme }) => ({
   flexGrow: 1,
   overflow: "auto",
   minHeight: "100%",
-  paddingTop: HEADER_HEIGHT,
+  paddingTop: 25 + HEADER_HEIGHT,
   paddingBottom: theme.spacing(10),
   [theme.breakpoints.up("md")]: {
     paddingTop: 40 + HEADER_HEIGHT,

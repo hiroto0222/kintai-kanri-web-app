@@ -3,6 +3,7 @@ import { Navigate, useRoutes } from "react-router-dom";
 import { authContext } from "./context/auth";
 import { DashboardLayout } from "./layouts/DashboardLayout";
 import DashboardPage from "./pages/DashboardPage";
+import EmployeesPage from "./pages/EmployeesPage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 
@@ -34,7 +35,24 @@ const Router = () => {
           ),
           index: true,
         },
-        { path: "register", element: <RegisterPage /> },
+        {
+          path: "employees",
+          element:
+            authState.isLoggedIn && authState.user?.is_admin ? (
+              <EmployeesPage />
+            ) : (
+              <Navigate to="/" />
+            ),
+        },
+        {
+          path: "employees/register",
+          element:
+            authState.isLoggedIn && authState.user?.is_admin ? (
+              <RegisterPage />
+            ) : (
+              <Navigate to="/" />
+            ),
+        },
       ],
     },
   ]);
