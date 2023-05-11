@@ -42,30 +42,31 @@ const ClockInsList = ({ data }: Props) => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {data.map((clockIn) => (
-                <TableRow hover key={clockIn.clock_in_id}>
-                  <TableCell align="left">
-                    {formatTime(clockIn.clock_in_time)}
-                  </TableCell>
-                  <TableCell align="left">
-                    {clockIn.clock_out_time.Valid
-                      ? formatTime(clockIn.clock_out_time.Time)
-                      : "N/A"}
-                  </TableCell>
-                  <TableCell align="left">
-                    {clockIn.clock_out_time.Valid ? (
-                      <Chip color="success" label="Yes" />
-                    ) : (
-                      <Chip color="error" label="No" />
-                    )}
-                  </TableCell>
-                  <TableCell align="left">
-                    {clockIn.clock_out_time.Valid
-                      ? calcWorkingHours(clockIn)
-                      : "N/A"}
-                  </TableCell>
-                </TableRow>
-              ))}
+              {data &&
+                data.map((clockIn) => (
+                  <TableRow hover key={clockIn.clock_in_id}>
+                    <TableCell align="left">
+                      {formatTime(clockIn.clock_in_time)}
+                    </TableCell>
+                    <TableCell align="left">
+                      {clockIn.clock_out_time.Valid
+                        ? formatTime(clockIn.clock_out_time.Time)
+                        : "N/A"}
+                    </TableCell>
+                    <TableCell align="left">
+                      {clockIn.clock_out_time.Valid ? (
+                        <Chip color="success" label="Yes" />
+                      ) : (
+                        <Chip color="error" label="No" />
+                      )}
+                    </TableCell>
+                    <TableCell align="left">
+                      {clockIn.clock_out_time.Valid
+                        ? calcWorkingHours(clockIn)
+                        : "N/A"}
+                    </TableCell>
+                  </TableRow>
+                ))}
             </TableBody>
           </Table>
         </TableContainer>
