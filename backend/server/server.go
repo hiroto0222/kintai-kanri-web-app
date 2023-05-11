@@ -63,7 +63,7 @@ func (server *Server) setupRouter() {
 
 	// setup cors
 	router.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{server.Config.Origin},
+		AllowOrigins:     []string{"*"}, //TODO:
 		AllowMethods:     []string{"GET", "POST", "OPTIONS", "PUT", "DELETE"},
 		AllowHeaders:     []string{"Content-Type", "Content-Length", "Accept-Encoding", "X-CSRF-Token", "Authorization", "accept", "origin", "Cache-Control", "X-Requested-With"},
 		ExposeHeaders:    []string{"Content-Length"},
