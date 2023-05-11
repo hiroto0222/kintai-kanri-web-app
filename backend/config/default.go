@@ -22,22 +22,28 @@ type Config struct {
 }
 
 func LoadConfig(path string) (config Config, err error) {
-	fmt.Println("config/default.go: GIN_MODE=", os.Getenv("GIN_MODE"))
-	if os.Getenv("GIN_MODE") != "release" {
-		// load env vars from app.env
-		fmt.Println("trying to load env vars from .local.env")
+	// Check if running in production mode
+	ginMode := os.Getenv("GIN_MODE")
+	fmt.Println(ginMode)
+	if ginMode == "release" {
+		// Use environment variables from OS
+		viper.AutomaticEnv()
+	} else {
+		// Use config file and override with OS environment variables
 		viper.AddConfigPath(path)
 		viper.SetConfigType("env")
 		viper.SetConfigName(".local")
+
+		if err = viper.ReadInConfig(); err != nil {
+			return
+		}
+
+		viper.AutomaticEnv()
 	}
 
-	// if any, override .local.env vars with os env vars
-	viper.AutomaticEnv()
-
-	if err = viper.ReadInConfig(); err != nil {
+	if err = viper.Unmarshal(&config); err != nil {
 		return
 	}
-	err = viper.Unmarshal(&config)
 
 	return
 }
