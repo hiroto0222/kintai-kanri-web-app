@@ -1,6 +1,7 @@
 package config
 
 import (
+	"os"
 	"time"
 
 	"github.com/spf13/viper"
@@ -20,10 +21,12 @@ type Config struct {
 }
 
 func LoadConfig(path string) (config Config, err error) {
-	// load env vars from app.env
-	viper.AddConfigPath(path)
-	viper.SetConfigType("env")
-	viper.SetConfigName(".local")
+	if os.Getenv("GIN_MODE") != "release" {
+		// load env vars from app.env
+		viper.AddConfigPath(path)
+		viper.SetConfigType("env")
+		viper.SetConfigName(".local")
+	}
 
 	// if any, override .local.env vars with os env vars
 	viper.AutomaticEnv()
