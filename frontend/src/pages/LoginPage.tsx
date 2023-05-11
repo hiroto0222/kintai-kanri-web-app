@@ -54,6 +54,12 @@ const LoginPage = () => {
             <Button fullWidth size="large" type="submit" variant="contained">
               Login
             </Button>
+            <Typography paddingTop={4} variant="body1">
+              テスト管理者アカウント:
+              <br />
+              email: admin@email.com <br />
+              password: admin123
+            </Typography>
           </CardContent>
         </Card>
       </Container>
