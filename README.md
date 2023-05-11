@@ -4,9 +4,9 @@
 backend:
 - Golang, Gin
 - Postgresql, Sqlc
-- JWT authentication (Paseto)
+- JWT authentication w/ Sessions
 
 frontend:
 - TypeScript, React.js (Vite)
-- ContextAPI (Redux)
-- TailwindCSS
+- ContextAPI
+- MaterialUI
