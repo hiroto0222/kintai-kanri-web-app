@@ -26,7 +26,7 @@ func LoadConfig(path string) (config Config, err error) {
 	ginMode := os.Getenv("GIN_MODE")
 	fmt.Println(ginMode)
 	if ginMode == "release" {
-		// Use environment variables from OS
+		// Use environment variables from OS only
 		viper.AutomaticEnv()
 	} else {
 		// Use config file and override with OS environment variables
