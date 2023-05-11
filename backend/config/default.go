@@ -13,7 +13,6 @@ type Config struct {
 	DBSource string `mapstructure:"POSTGRES_SOURCE"`
 	Port     string `mapstructure:"PORT"`
 	Origin   string `mapstructure:"ORIGIN"`
-	Env      string `mapstructure:"ENV"`
 
 	TokenSymmetricKey    string        `mapstructure:"TOKEN_SYMMETRIC_KEY"`
 	AccessTokenDuration  time.Duration `mapstructure:"ACCESS_TOKEN_DURATION"`
@@ -21,12 +20,10 @@ type Config struct {
 }
 
 func LoadConfig(path string) (config Config, err error) {
-	if config.Env != "production" {
-		// load env vars from app.env
-		viper.AddConfigPath(path)
-		viper.SetConfigType("env")
-		viper.SetConfigName(".local")
-	}
+	// load env vars from app.env
+	viper.AddConfigPath(path)
+	viper.SetConfigType("env")
+	viper.SetConfigName(".local")
 
 	// if any, override .local.env vars with os env vars
 	viper.AutomaticEnv()
