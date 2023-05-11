@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"os"
 	"time"
 
@@ -21,8 +22,10 @@ type Config struct {
 }
 
 func LoadConfig(path string) (config Config, err error) {
+	fmt.Println("config/default.go: GIN_MODE=", os.Getenv("GIN_MODE"))
 	if os.Getenv("GIN_MODE") != "release" {
 		// load env vars from app.env
+		fmt.Println("trying to load env vars from .local.env")
 		viper.AddConfigPath(path)
 		viper.SetConfigType("env")
 		viper.SetConfigName(".local")
