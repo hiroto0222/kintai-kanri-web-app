@@ -34,7 +34,7 @@ const useAuthApi = (privateApi: AxiosInstance) => {
   const register = async (data: RegisterFormProps) => {
     const url = "auth/register";
     try {
-      const response = await privateApi.post(
+      await privateApi.post(
         url,
         {
           first_name: data.FirstName,

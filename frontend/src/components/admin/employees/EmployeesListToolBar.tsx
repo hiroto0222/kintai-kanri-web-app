@@ -26,10 +26,10 @@ const StyledSearch = styled(OutlinedInput)(({ theme }) => ({
   },
 }));
 
-type Props = {
-  filterName: string;
-  onFilterName: (event: React.ChangeEvent<HTMLInputElement>) => void;
-};
+// type Props = {
+//   filterName: string;
+//   onFilterName: (event: React.ChangeEvent<HTMLInputElement>) => void;
+// };
 
 // TODO: Implement search functionality
 const EmployeesListToolbar = () => {

@@ -17,6 +17,7 @@ type formData = {
   required: boolean;
   type: React.HTMLInputTypeAttribute;
   defaultValue: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   rules?: any;
 };
 
