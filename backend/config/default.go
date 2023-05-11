@@ -1,6 +1,7 @@
 package config
 
 import (
+	"os"
 	"time"
 
 	"github.com/spf13/viper"
@@ -13,7 +14,6 @@ type Config struct {
 	DBSource string `mapstructure:"POSTGRES_SOURCE"`
 	Port     string `mapstructure:"PORT"`
 	Origin   string `mapstructure:"ORIGIN"`
-	Env      string `mapstructure:"ENV"`
 
 	TokenSymmetricKey    string        `mapstructure:"TOKEN_SYMMETRIC_KEY"`
 	AccessTokenDuration  time.Duration `mapstructure:"ACCESS_TOKEN_DURATION"`
@@ -21,7 +21,7 @@ type Config struct {
 }
 
 func LoadConfig(path string) (config Config, err error) {
-	if config.Env != "production" {
+	if os.Getenv("GIN_MODE") != "release" {
 		// load env vars from app.env
 		viper.AddConfigPath(path)
 		viper.SetConfigType("env")
