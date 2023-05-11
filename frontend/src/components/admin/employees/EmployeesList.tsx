@@ -6,7 +6,6 @@ import {
   TableHead,
   TableRow,
 } from "@mui/material";
-import { useNavigate } from "react-router-dom";
 import { Employee } from "../../../services/employees";
 
 type Props = {
@@ -14,7 +13,7 @@ type Props = {
 };
 
 const EmployeesList = ({ data }: Props) => {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   const handleClick = (employeeID: string) => {
     console.log(employeeID);

@@ -23,6 +23,7 @@ type formData = {
   required: boolean;
   type: React.HTMLInputTypeAttribute;
   defaultValue: string | number | boolean | undefined;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   rules?: any;
 };
 
