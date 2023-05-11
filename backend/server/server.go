@@ -99,5 +99,6 @@ func (server *Server) setupRouter() {
 
 // start runs the HTTP server on config port
 func (server *Server) Start() error {
+	fmt.Println("server listening on port", server.Config.Port)
 	return server.Router.Run(":" + server.Config.Port)
 }
