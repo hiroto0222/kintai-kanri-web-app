@@ -3,8 +3,7 @@ services:
   backend:
     image: ${ECR_REGISTRY}/${ECR_REPOSITORY}:backend_${IMAGE_TAG}
     container_name: prod-backend
-    environment:
-      - GIN_MODE=release
+    environment: GIN_MODE=release
     build:
       context: ./backend
       dockerfile: ../compose/production/backend/Dockerfile

@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
-	"os"
 
 	"github.com/hiroto0222/kintai-kanri-web-app/config"
 	"github.com/hiroto0222/kintai-kanri-web-app/controllers"
@@ -29,7 +28,6 @@ var (
 // @type http
 // @scheme bearer
 func main() {
-	fmt.Println("main.go: GIN_MODE=", os.Getenv("GIN_MODE"))
 	// load config
 	config, err := config.LoadConfig(".")
 	if err != nil {
