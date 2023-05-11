@@ -24,10 +24,21 @@ type Config struct {
 func LoadConfig(path string) (config Config, err error) {
 	// Check if running in production mode
 	ginMode := os.Getenv("GIN_MODE")
-	fmt.Println(ginMode)
 	if ginMode == "release" {
 		// Use environment variables from OS only
-		viper.AutomaticEnv()
+		config.DBDriver = os.Getenv("POSTGRES_DRIVER")
+		config.DBSource = os.Getenv("POSTGRES_SOURCE")
+		config.Port = os.Getenv("PORT")
+		config.Origin = os.Getenv("ORIGIN")
+		config.TokenSymmetricKey = os.Getenv("TOKEN_SYMMETRIC_KEY")
+		config.AccessTokenDuration, err = time.ParseDuration(os.Getenv("ACCESS_TOKEN_DURATION"))
+		if err != nil {
+			return
+		}
+		config.RefreshTokenDuration, err = time.ParseDuration(os.Getenv("REFRESH_TOKEN_DURATION"))
+		if err != nil {
+			return
+		}
 	} else {
 		// Use config file and override with OS environment variables
 		viper.AddConfigPath(path)
@@ -39,11 +50,13 @@ func LoadConfig(path string) (config Config, err error) {
 		}
 
 		viper.AutomaticEnv()
+
+		if err = viper.Unmarshal(&config); err != nil {
+			return
+		}
 	}
 
-	if err = viper.Unmarshal(&config); err != nil {
-		return
-	}
+	fmt.Println(config)
 
 	return
 }
