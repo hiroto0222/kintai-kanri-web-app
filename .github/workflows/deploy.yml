@@ -2,7 +2,7 @@ name: build and push production image to ECR
 
 on:
   push:
-    branches: ["main", "feat/aws_deploy"]
+    branches: ["main"]
     paths: ["backend/**", ".github/workflows/deploy.yml"]
 
 jobs:
