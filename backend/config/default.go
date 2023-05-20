@@ -5,6 +5,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
 )
 
@@ -26,6 +27,7 @@ func LoadConfig(path string) (config Config, err error) {
 	ginMode := os.Getenv("GIN_MODE")
 	if ginMode == "release" {
 		// Use environment variables from OS only
+		gin.SetMode(gin.ReleaseMode)
 		config.DBDriver = os.Getenv("POSTGRES_DRIVER")
 		config.DBSource = os.Getenv("POSTGRES_SOURCE")
 		config.Port = os.Getenv("PORT")

@@ -1,8 +1,8 @@
-name: Deploy
+name: build and push production image to ECR
 
 on:
   push:
-    branches: [main]
+    branches: ["main", "feat/aws_deploy"]
     paths: ["backend/**", ".github/workflows/deploy.yml"]
 
 jobs:
@@ -27,10 +27,11 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v1
 
       - name: Build, tag, and push docker image to Amazon ECR
+        working-directory: ./backend
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: ${{ secrets.AWS_ECR_REPO_NAME }}
           IMAGE_TAG: latest
         run: |
-          docker-compose -f production.yml build
-          docker-compose -f production.yml push
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG

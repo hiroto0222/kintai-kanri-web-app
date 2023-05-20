@@ -18,11 +18,10 @@ FROM alpine:3.17
 WORKDIR /app
 COPY --from=builder /app/main .
 COPY --from=builder /app/migrate.linux-amd64 ./migrate
-# COPY .local.env .
 COPY start.sh .
 COPY wait-for.sh .
 COPY db/migrations ./migrations
 
 EXPOSE 8080
-CMD ["/app/main"]
+CMD [ "/app/main" ]
 ENTRYPOINT [ "/app/start.sh" ]
