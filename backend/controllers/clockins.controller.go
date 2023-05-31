@@ -32,7 +32,7 @@ type reqCreateClockIn struct {
 	EmployeeID string `json:"employee_id" binding:"required"`
 }
 
-// RefreshAccessToken godoc
+// CreateClockIn godoc
 // @Summary      出勤打刻
 // @Tags         clockins
 // @Accept       json
@@ -112,8 +112,9 @@ func (c *ClockInController) ListClockInsAndClockOuts(ctx *gin.Context) {
 		return
 	}
 
+	// 取得するユーザーがログインしているユーザー・管理者でない場合はエラーを返す
 	authPayload := ctx.MustGet(middlewares.AuthorizationPayloadKey).(*token.Payload)
-	if authPayload.EmployeeID != req.EmployeeID {
+	if authPayload.EmployeeID != req.EmployeeID && !authPayload.IsAdmin {
 		err := errors.New("you do not have permission")
 		ctx.JSON(http.StatusUnauthorized, utils.CreateErrorResponse(err))
 		return
