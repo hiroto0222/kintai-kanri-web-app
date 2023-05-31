@@ -1,11 +1,11 @@
 import { Card, Typography, styled } from "@mui/material";
 
-interface Props {
+type Props = {
   title: string;
   color: string;
   bgcolor: string;
   onClick: () => Promise<void>;
-}
+};
 
 const StyledCard = styled(Card)(() => ({
   transition: "transform 0.2s ease-out",
@@ -28,9 +28,9 @@ const Button = ({ title, color, bgcolor, onClick }: Props) => {
       onClick={onClick}
     >
       <Typography variant="h3">{title}</Typography>
-      <Typography variant="subtitle2" sx={{ opacity: 0.8 }}>
+      {/* <Typography variant="subtitle2" sx={{ opacity: 0.8 }}>
         {title}
-      </Typography>
+      </Typography> */}
     </StyledCard>
   );
 };

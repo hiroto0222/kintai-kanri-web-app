@@ -7,11 +7,13 @@ import {
 } from "@mui/material";
 import { Helmet } from "react-helmet-async";
 import { SubmitHandler, useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import LoginForm, { LoginFormProps } from "../components/auth/LoginForm";
 import useAuthApi from "../hooks/api/useAuthApi";
 import usePrivateAxios from "../hooks/usePrivateAxios";
 
 const LoginPage = () => {
+  const { t } = useTranslation();
   const privateAxios = usePrivateAxios();
   const { login } = useAuthApi(privateAxios);
   const { handleSubmit, control } = useForm<LoginFormProps>({
@@ -48,7 +50,7 @@ const LoginPage = () => {
         >
           <CardContent>
             <Typography variant="h4" align="center" gutterBottom>
-              Welcome
+              {t("auth.welcome")}
             </Typography>
             <LoginForm control={control} />
             <Button fullWidth size="large" type="submit" variant="contained">

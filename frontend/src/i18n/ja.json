@@ -1,0 +1,32 @@
+{
+  "auth": {
+    "welcome": "Welcome 🙇"
+  },
+  "dashboard": {
+    "welcome": "Welcome back 👋",
+    "clock_in": "出勤打刻",
+    "clock_out": "退勤打刻",
+    "register_employee": "従業員登録"
+  },
+  "clockinsTable": {
+    "date": "日付",
+    "clock_in_time": "出勤時間",
+    "clock_out_time": "退勤時間",
+    "working_hours": "勤務時間"
+  },
+  "employeesTable": {
+    "last_name": "名字",
+    "first_name": "名前",
+    "email": "メールアドレス",
+    "phone": "電話番号",
+    "address": "住所",
+    "role": "役割",
+    "joined": "入社日"
+  },
+  "nav": {
+    "mypage": "マイページ",
+    "employees": "従業員"
+  },
+  "errors": {},
+  "success": {}
+}
