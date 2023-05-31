@@ -15,8 +15,10 @@ const DashboardPage = () => {
   const { t } = useTranslation();
   const { authState } = useContext(authContext);
   const privateAxios = usePrivateAxios();
-  const { clockIns, latestClockIn, getClockIns, loading } =
-    useListClockIns(privateAxios);
+  const { clockIns, latestClockIn, getClockIns, loading } = useListClockIns(
+    privateAxios,
+    authState.user?.id
+  );
   const { clockIn, clockOut } = useClockInsClockOutsApi(privateAxios);
 
   return (
