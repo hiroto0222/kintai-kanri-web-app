@@ -27,6 +27,16 @@
     "mypage": "My Page",
     "employees": "Employees"
   },
-  "errors": {},
-  "success": {}
+  "errors": {
+    "invalidUserCredentials": "Email or password is incorrect",
+    "userNotFound": "User does not exist",
+    "invalidClockIn": "Unable to clock in, have you forgotten to previously clock out?",
+    "invalidClockOut": "Unable to clock out, have you forgotten to previously clock in?",
+    "unauthorized": "You do not have permission"
+  },
+  "success": {
+    "registered": "A new employee has been registered",
+    "clock_in": "Successfully clocked in",
+    "clock_out": "Successfully clocked out"
+  }
 }

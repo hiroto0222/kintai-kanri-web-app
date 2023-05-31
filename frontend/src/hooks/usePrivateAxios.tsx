@@ -26,7 +26,7 @@ const usePrivateAxios = () => {
       async (error) => {
         const prevRequest = error.config;
         // access token の有効期限が切れている場合
-        if (prevRequest?.url !== "api/auth/login" && error.response) {
+        if (prevRequest?.url !== "auth/login" && error.response) {
           if (error.response.status === 401 && !prevRequest._retry) {
             prevRequest._retry = true;
             // refresh token から新しい access token を取得

@@ -27,6 +27,16 @@
     "mypage": "マイページ",
     "employees": "従業員"
   },
-  "errors": {},
-  "success": {}
+  "errors": {
+    "invalidUserCredentials": "メールアドレスまたはパスワードが正しくありません",
+    "userNotFound": "ユーザーが見つかりません",
+    "invalidClockIn": "出勤打刻ができませんでした、以前退勤打刻をされているかご確認ください",
+    "invalidClockOut": "退勤打刻ができませんでした、以前出勤打刻をされているかご確認ください",
+    "unauthorized": "権限がありません"
+  },
+  "success": {
+    "registered": "新しい従業員の登録が完了しました",
+    "clock_in": "出勤打刻が完了しました。",
+    "clock_out": "退勤打刻が完了しました。\nお疲れ様でした 🙇"
+  }
 }
