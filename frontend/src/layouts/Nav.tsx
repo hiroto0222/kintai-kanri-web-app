@@ -30,10 +30,12 @@ const Nav = ({ openNav, onCloseNav }: Props) => {
 
   const navConfig = [
     {
+      id: 1,
       title: t("nav.mypage"),
       path: "/dashboard",
     },
     {
+      id: 2,
       title: t("nav.employees"),
       path: "/dashboard/employees",
     },
@@ -51,7 +53,7 @@ const Nav = ({ openNav, onCloseNav }: Props) => {
         <Box>
           <List sx={{ px: 1, py: 4 }}>
             {navConfig.map((item) => (
-              <StyledNavItem onClick={() => navigate(item.path)}>
+              <StyledNavItem key={item.id} onClick={() => navigate(item.path)}>
                 <ListItemText primary={item.title} />
               </StyledNavItem>
             ))}
