@@ -13,6 +13,7 @@ import {
   EmployeesList,
   EmployeesListToolbar,
 } from "../components/admin/employees";
+import Loading from "../components/dashboard/Loading";
 import useListEmployees from "../hooks/api/useListEmployees";
 import usePrivateAxios from "../hooks/usePrivateAxios";
 
@@ -20,7 +21,7 @@ const EmployeesPage = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const privateAxios = usePrivateAxios();
-  const { employees } = useListEmployees(privateAxios);
+  const { employees, loading } = useListEmployees(privateAxios);
 
   const handleClick = () => {
     navigate("/dashboard/employees/register");
@@ -43,14 +44,18 @@ const EmployeesPage = () => {
             {t("dashboard.register_employee")}
           </Button>
         </Stack>
-        <Grid justifyContent="space-evenly" container spacing={3}>
-          <Grid item xs={12}>
-            <Card>
-              <EmployeesListToolbar />
-              <EmployeesList data={employees} />
-            </Card>
+        {loading ? (
+          <Loading />
+        ) : (
+          <Grid justifyContent="space-evenly" container spacing={3}>
+            <Grid item xs={12}>
+              <Card>
+                <EmployeesListToolbar />
+                <EmployeesList data={employees} />
+              </Card>
+            </Grid>
           </Grid>
-        </Grid>
+        )}
       </Container>
     </>
   );
