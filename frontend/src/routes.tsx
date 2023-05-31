@@ -3,6 +3,7 @@ import { Navigate, useRoutes } from "react-router-dom";
 import { authContext } from "./context/auth";
 import { DashboardLayout } from "./layouts/DashboardLayout";
 import DashboardPage from "./pages/DashboardPage";
+import EmployeePage from "./pages/EmployeePage";
 import EmployeesPage from "./pages/EmployeesPage";
 import LoginPage from "./pages/LoginPage";
 import RegisterEmployeePage from "./pages/RegisterEmployeePage";
@@ -49,6 +50,15 @@ const Router = () => {
           element:
             authState.isLoggedIn && authState.user?.is_admin ? (
               <RegisterEmployeePage />
+            ) : (
+              <Navigate to="/" />
+            ),
+        },
+        {
+          path: "employees/:employeeId",
+          element:
+            authState.isLoggedIn && authState.user?.is_admin ? (
+              <EmployeePage />
             ) : (
               <Navigate to="/" />
             ),

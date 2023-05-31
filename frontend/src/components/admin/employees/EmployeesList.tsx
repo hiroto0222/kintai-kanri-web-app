@@ -7,6 +7,7 @@ import {
   TableRow,
 } from "@mui/material";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 import { Employee } from "../../../services/employees";
 
 type Props = {
@@ -15,11 +16,10 @@ type Props = {
 
 const EmployeesList = ({ data }: Props) => {
   const { t } = useTranslation();
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
 
   const handleClick = (employeeID: string) => {
-    console.log(employeeID);
-    // navigate(`/dashboard/employees/${employeeID}`);
+    navigate(`/dashboard/employees/${employeeID}`);
   };
 
   return (

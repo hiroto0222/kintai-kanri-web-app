@@ -1,12 +1,14 @@
 import { Grid, useTheme } from "@mui/material";
+import { useContext } from "react";
 import { useTranslation } from "react-i18next";
+import { authContext } from "../../context/auth";
 import { ListClockInsResponse } from "../../services/clockins";
 import CustomButton from "./Button";
 
 type Props = {
   clockIn: () => Promise<void>;
   clockOut: () => Promise<void>;
-  getClockIns: () => Promise<void>;
+  getClockIns: (employeeId: string | undefined) => Promise<void>;
   latestClockIn: ListClockInsResponse | undefined;
 };
 
@@ -18,6 +20,7 @@ const ClockInClockOut = ({
 }: Props) => {
   const { t } = useTranslation();
   const theme = useTheme();
+  const { authState } = useContext(authContext);
 
   // まだ退勤打刻していない場合はclockInをdisabled
   const isClockInDisabled = () => {
@@ -42,7 +45,7 @@ const ClockInClockOut = ({
           bgcolor={theme.palette.success.light}
           onClick={async () => {
             await clockIn();
-            await getClockIns();
+            await getClockIns(authState.user?.id);
           }}
           disabled={isClockInDisabled()}
         />
@@ -54,7 +57,7 @@ const ClockInClockOut = ({
           bgcolor={theme.palette.error.light}
           onClick={async () => {
             await clockOut();
-            await getClockIns();
+            await getClockIns(authState.user?.id);
           }}
           disabled={isClockOutDisabled()}
         />
