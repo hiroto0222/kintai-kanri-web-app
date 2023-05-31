@@ -57,7 +57,7 @@ const useAuthApi = (privateApi: AxiosInstance) => {
           withCredentials: true,
         }
       );
-      toast.success("Employee registered successfully");
+      toast.success(t("success.registered"));
     } catch (error) {
       toast.error(`an error occured, ${error}`);
     }
