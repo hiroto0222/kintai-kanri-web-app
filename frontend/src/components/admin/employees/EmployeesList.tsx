@@ -6,6 +6,7 @@ import {
   TableHead,
   TableRow,
 } from "@mui/material";
+import { useTranslation } from "react-i18next";
 import { Employee } from "../../../services/employees";
 
 type Props = {
@@ -13,6 +14,7 @@ type Props = {
 };
 
 const EmployeesList = ({ data }: Props) => {
+  const { t } = useTranslation();
   // const navigate = useNavigate();
 
   const handleClick = (employeeID: string) => {
@@ -26,13 +28,13 @@ const EmployeesList = ({ data }: Props) => {
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>First Name</TableCell>
-              <TableCell>Last Name</TableCell>
-              <TableCell>Email</TableCell>
-              <TableCell>Phone</TableCell>
-              <TableCell>Address</TableCell>
-              <TableCell>Role</TableCell>
-              <TableCell>Joined</TableCell>
+              <TableCell>{t("employeesTable.last_name")}</TableCell>
+              <TableCell>{t("employeesTable.first_name")}</TableCell>
+              <TableCell>{t("employeesTable.email")}</TableCell>
+              <TableCell>{t("employeesTable.phone")}</TableCell>
+              <TableCell>{t("employeesTable.address")}</TableCell>
+              <TableCell>{t("employeesTable.role")}</TableCell>
+              <TableCell>{t("employeesTable.joined")}</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -45,8 +47,8 @@ const EmployeesList = ({ data }: Props) => {
                   cursor: "pointer",
                 }}
               >
-                <TableCell>{employee.first_name}</TableCell>
                 <TableCell>{employee.last_name}</TableCell>
+                <TableCell>{employee.first_name}</TableCell>
                 <TableCell>{employee.email}</TableCell>
                 <TableCell>{employee.phone}</TableCell>
                 <TableCell>{employee.address}</TableCell>

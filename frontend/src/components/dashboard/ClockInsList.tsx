@@ -1,6 +1,5 @@
 import {
   Card,
-  Chip,
   Table,
   TableBody,
   TableCell,
@@ -8,25 +7,16 @@ import {
   TableHead,
   TableRow,
 } from "@mui/material";
+import { useTranslation } from "react-i18next";
 import { ListClockInsResponse } from "../../services/clockins";
-import formatTime from "../../utils/formatTime";
+import { calcWorkingHours, formatDate, formatTime } from "../../utils";
 
 type Props = {
   data: ListClockInsResponse[];
 };
 
 const ClockInsList = ({ data }: Props) => {
-  const calcWorkingHours = (clockIn: ListClockInsResponse) => {
-    const clockOutTime = new Date(clockIn.clock_out_time.Time).getTime();
-    const clockInTime = new Date(clockIn.clock_in_time).getTime();
-    const diffMillis = clockOutTime - clockInTime;
-    const diffMinutes = Math.floor(diffMillis / (1000 * 60));
-    const hours = Math.floor(diffMinutes / 60);
-    const minutes = diffMinutes % 60;
-    return `${hours.toString().padStart(2, "0")}:${minutes
-      .toString()
-      .padStart(2, "0")}`;
-  };
+  const { t } = useTranslation();
 
   return (
     <>
@@ -35,10 +25,10 @@ const ClockInsList = ({ data }: Props) => {
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell>ClockIn Time</TableCell>
-                <TableCell>ClockOut Time</TableCell>
-                <TableCell>Clocked Out</TableCell>
-                <TableCell>Working Hours</TableCell>
+                <TableCell>{t("clockinsTable.date")}</TableCell>
+                <TableCell>{t("clockinsTable.clock_in_time")}</TableCell>
+                <TableCell>{t("clockinsTable.clock_out_time")}</TableCell>
+                <TableCell>{t("clockinsTable.working_hours")}</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -46,19 +36,15 @@ const ClockInsList = ({ data }: Props) => {
                 data.map((clockIn) => (
                   <TableRow hover key={clockIn.clock_in_id}>
                     <TableCell align="left">
+                      {formatDate(clockIn.clock_in_time)}
+                    </TableCell>
+                    <TableCell align="left">
                       {formatTime(clockIn.clock_in_time)}
                     </TableCell>
                     <TableCell align="left">
                       {clockIn.clock_out_time.Valid
                         ? formatTime(clockIn.clock_out_time.Time)
                         : "N/A"}
-                    </TableCell>
-                    <TableCell align="left">
-                      {clockIn.clock_out_time.Valid ? (
-                        <Chip color="success" label="Yes" />
-                      ) : (
-                        <Chip color="error" label="No" />
-                      )}
                     </TableCell>
                     <TableCell align="left">
                       {clockIn.clock_out_time.Valid

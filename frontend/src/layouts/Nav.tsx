@@ -6,23 +6,13 @@ import {
   ListItemText,
   styled,
 } from "@mui/material";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 
 type Props = {
   openNav: boolean;
   onCloseNav: () => void;
 };
-
-const navConfig = [
-  {
-    title: "My Dashboard",
-    path: "/dashboard",
-  },
-  {
-    title: "Employees",
-    path: "/dashboard/employees",
-  },
-];
 
 const StyledNavItem = styled(ListItemButton)(({ theme }) => ({
   ...theme.typography.body2,
@@ -35,7 +25,19 @@ const StyledNavItem = styled(ListItemButton)(({ theme }) => ({
 }));
 
 const Nav = ({ openNav, onCloseNav }: Props) => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
+
+  const navConfig = [
+    {
+      title: t("nav.mypage"),
+      path: "/dashboard",
+    },
+    {
+      title: t("nav.employees"),
+      path: "/dashboard/employees",
+    },
+  ];
 
   return (
     <Box component="nav">

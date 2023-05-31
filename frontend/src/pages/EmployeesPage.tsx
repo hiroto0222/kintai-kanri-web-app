@@ -7,6 +7,7 @@ import {
   Typography,
 } from "@mui/material";
 import { Helmet } from "react-helmet-async";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import {
   EmployeesList,
@@ -16,6 +17,7 @@ import useListEmployees from "../hooks/api/useListEmployees";
 import usePrivateAxios from "../hooks/usePrivateAxios";
 
 const EmployeesPage = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const privateAxios = usePrivateAxios();
   const { employees } = useListEmployees(privateAxios);
@@ -27,7 +29,7 @@ const EmployeesPage = () => {
   return (
     <>
       <Helmet>
-        <title>Employees</title>
+        <title>{t("nav.employees")}</title>
       </Helmet>
       <Container maxWidth="xl">
         <Stack
@@ -36,9 +38,9 @@ const EmployeesPage = () => {
           justifyContent="space-between"
           sx={{ mb: 5 }}
         >
-          <Typography variant="h3">Employees</Typography>
+          <Typography variant="h3">{t("nav.employees")}</Typography>
           <Button variant="contained" onClick={handleClick}>
-            Register Employee
+            {t("dashboard.register_employee")}
           </Button>
         </Stack>
         <Grid justifyContent="space-evenly" container spacing={3}>

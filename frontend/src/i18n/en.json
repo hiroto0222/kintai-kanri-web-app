@@ -1,0 +1,32 @@
+{
+  "auth": {
+    "welcome": "Welcome 🙇"
+  },
+  "dashboard": {
+    "welcome": "Welcome back 👋",
+    "clock_in": "Clock In",
+    "clock_out": "Clock Out",
+    "register_employee": "Register Employee"
+  },
+  "clockinsTable": {
+    "date": "date",
+    "clock_in_time": "Clock In Time",
+    "clock_out_time": "Clock Out Time",
+    "working_hours": "Working Hours"
+  },
+  "employeesTable": {
+    "last_name": "Last Name",
+    "first_name": "First Name",
+    "email": "Email",
+    "phone": "Phone",
+    "address": "Address",
+    "role": "Role",
+    "joined": "Date Joined"
+  },
+  "nav": {
+    "mypage": "My Page",
+    "employees": "Employees"
+  },
+  "errors": {},
+  "success": {}
+}
