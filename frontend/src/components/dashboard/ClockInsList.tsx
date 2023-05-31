@@ -44,12 +44,12 @@ const ClockInsList = ({ data }: Props) => {
                     <TableCell align="left">
                       {clockIn.clock_out_time.Valid
                         ? formatTime(clockIn.clock_out_time.Time)
-                        : "N/A"}
+                        : "-"}
                     </TableCell>
                     <TableCell align="left">
                       {clockIn.clock_out_time.Valid
                         ? calcWorkingHours(clockIn)
-                        : "N/A"}
+                        : "-"}
                     </TableCell>
                   </TableRow>
                 ))}
