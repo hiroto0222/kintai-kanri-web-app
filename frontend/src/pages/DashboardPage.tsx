@@ -15,7 +15,8 @@ const DashboardPage = () => {
   const { t } = useTranslation();
   const { authState } = useContext(authContext);
   const privateAxios = usePrivateAxios();
-  const { clockIns, getClockIns, loading } = useListClockIns(privateAxios);
+  const { clockIns, latestClockIn, getClockIns, loading } =
+    useListClockIns(privateAxios);
   const { clockIn, clockOut } = useClockInsClockOutsApi(privateAxios);
 
   return (
@@ -45,7 +46,7 @@ const DashboardPage = () => {
             <ClockInClockOut
               clockIn={clockIn}
               clockOut={clockOut}
-              clockIns={clockIns}
+              latestClockIn={latestClockIn}
               getClockIns={getClockIns}
             />
             <Grid item xs={12}>

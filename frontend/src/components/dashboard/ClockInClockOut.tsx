@@ -7,19 +7,31 @@ type Props = {
   clockIn: () => Promise<void>;
   clockOut: () => Promise<void>;
   getClockIns: () => Promise<void>;
-  clockIns: ListClockInsResponse[];
+  latestClockIn: ListClockInsResponse | undefined;
 };
 
 const ClockInClockOut = ({
   clockIn,
   clockOut,
   getClockIns,
-  clockIns,
+  latestClockIn,
 }: Props) => {
   const { t } = useTranslation();
   const theme = useTheme();
 
-  console.log(clockIns);
+  // まだ退勤打刻していない場合はclockInをdisabled
+  const isClockInDisabled = () => {
+    return latestClockIn === undefined
+      ? false
+      : !latestClockIn.clock_out_id.Valid;
+  };
+
+  // まだ出勤打刻していない場合はclockOutをdisabled
+  const isClockOutDisabled = () => {
+    return latestClockIn === undefined
+      ? true
+      : latestClockIn.clock_out_id.Valid;
+  };
 
   return (
     <>
@@ -32,17 +44,19 @@ const ClockInClockOut = ({
             await clockIn();
             await getClockIns();
           }}
+          disabled={isClockInDisabled()}
         />
       </Grid>
       <Grid item xs={12} sm={5}>
         <CustomButton
           title={t("dashboard.clock_out")}
           color={theme.palette.warning.contrastText}
-          bgcolor={theme.palette.warning.light}
+          bgcolor={theme.palette.error.light}
           onClick={async () => {
             await clockOut();
             await getClockIns();
           }}
+          disabled={isClockOutDisabled()}
         />
       </Grid>
     </>
