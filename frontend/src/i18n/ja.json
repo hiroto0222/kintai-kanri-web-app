@@ -27,6 +27,9 @@
     "mypage": "マイページ",
     "employees": "従業員"
   },
-  "errors": {},
+  "errors": {
+    "invalidUserCredentials": "メールアドレスまたはパスワードが正しくありません",
+    "userNotFound": "ユーザーが見つかりません"
+  },
   "success": {}
 }
