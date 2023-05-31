@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import CustomButton from "../components/dashboard/Button";
 import Clock from "../components/dashboard/Clock";
 import ClockInsList from "../components/dashboard/ClockInsList";
+import Loading from "../components/dashboard/Loading";
 import { authContext } from "../context/auth";
 import useClockInsClockOutsApi from "../hooks/api/useClockInsClockOutsApi";
 import useListClockIns from "../hooks/api/useListClockIns";
@@ -15,7 +16,7 @@ const DashboardPage = () => {
   const theme = useTheme();
   const { authState } = useContext(authContext);
   const privateAxios = usePrivateAxios();
-  const { clockIns } = useListClockIns(privateAxios);
+  const { clockIns, loading } = useListClockIns(privateAxios);
   const { clockIn, clockOut } = useClockInsClockOutsApi(privateAxios);
 
   return (
@@ -38,27 +39,31 @@ const DashboardPage = () => {
           </Stack>
           <Clock />
         </Stack>
-        <Grid justifyContent="space-evenly" container spacing={3}>
-          <Grid item xs={12} sm={5}>
-            <CustomButton
-              title={t("dashboard.clock_in")}
-              color={theme.palette.success.contrastText}
-              bgcolor={theme.palette.success.light}
-              onClick={clockIn}
-            />
+        {loading ? (
+          <Loading />
+        ) : (
+          <Grid justifyContent="space-evenly" container spacing={3}>
+            <Grid item xs={12} sm={5}>
+              <CustomButton
+                title={t("dashboard.clock_in")}
+                color={theme.palette.success.contrastText}
+                bgcolor={theme.palette.success.light}
+                onClick={clockIn}
+              />
+            </Grid>
+            <Grid item xs={12} sm={5}>
+              <CustomButton
+                title={t("dashboard.clock_out")}
+                color={theme.palette.warning.contrastText}
+                bgcolor={theme.palette.warning.light}
+                onClick={clockOut}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <ClockInsList data={clockIns} />
+            </Grid>
           </Grid>
-          <Grid item xs={12} sm={5}>
-            <CustomButton
-              title={t("dashboard.clock_out")}
-              color={theme.palette.warning.contrastText}
-              bgcolor={theme.palette.warning.light}
-              onClick={clockOut}
-            />
-          </Grid>
-          <Grid item xs={12}>
-            <ClockInsList data={clockIns} />
-          </Grid>
-        </Grid>
+        )}
       </Container>
     </>
   );
